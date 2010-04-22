@@ -1,25 +1,39 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-	<title>jive.Class Test Suite</title>
-	<link rel="Stylesheet" media="screen" href="qunit/qunit/qunit.css" />
-	<link rel="Stylesheet" media="screen" href="data/testsuite.css" />
-	<!-- Project Includes -->
-	<script src="../src/class.js"></script>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>jive-tools Test Suite</title>
+    <link rel="Stylesheet" media="screen" href="qunit/qunit/qunit.css" />
 
-	<!-- Testing Framework Includes -->
-	<script src="qunit/qunit/qunit.js"></script>
+    <!-- Testing Framework Includes -->
+    <script src="qunit/qunit/qunit.js"></script>
 
-	<!-- Unit Test Includes -->
-	<script src="unit/class.js"></script>
+    <!-- jive.oo -->
+    <script src="../src/oo/class.js"></script>
+    <script src="unit/oo/class_test.js"></script>
+
+    <!-- jive.conc -->
+    <script src="../src/conc/next_tick.js"></script>
+    <script src="unit/conc/next_tick_test.js"></script>
+    <script src="../src/conc/observable.js"></script>
+    <script src="unit/conc/observable_test.js"></script>
+    <script src="../src/conc/promise.js"></script>
+    <script src="unit/conc/promise_test.js"></script>
+    <script src="../src/conc/synchronize.js"></script>
+    <script src="unit/conc/synchronize_test.js"></script>
+
+    <!-- jive.compat -->
+    <script src="../src/compat/array.js"></script>
+    <script src="unit/compat/array_test.js"></script>
+    <script src="../src/compat/object.js"></script>
+    <script src="unit/compat/object_test.js"></script>
 </head>
 
 <body id="body">
-	<h1 id="qunit-header">jive.Class Test Suite</h1>
-	<h2 id="qunit-banner"></h2>
-	<div id="qunit-testrunner-toolbar"></div>
-	<h2 id="qunit-userAgent"></h2>
-	<ol id="qunit-tests"></ol>
+    <h1 id="qunit-header">jive-tools Test Suite</h1>
+    <h2 id="qunit-banner"></h2>
+    <div id="qunit-testrunner-toolbar"></div>
+    <h2 id="qunit-userAgent"></h2>
+    <ol id="qunit-tests"></ol>
 </body>
 </html>
