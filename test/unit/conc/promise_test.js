@@ -220,7 +220,7 @@ asyncTest("times out after a given delay", 1, function() {
 asyncTest("emits an error with an exception argument on timeout", 2, function() {
     this.promise.addErrback(function(a) {
         ok( a instanceof Error, "error callback is given an error object" );
-        ok( String(a).match(/timeout/), "the error message mentions a timeout" );
+        ok( a.message.match(/timeout/), "the error message mentions a timeout" );
         start();
     });
     this.promise.timeout(25);
