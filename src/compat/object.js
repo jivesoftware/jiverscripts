@@ -28,14 +28,14 @@
 if (typeof Object.create == 'undefined') {
     (function() {
         var defineProperty = Object.defineProperty || function(obj, name, desc) {
-            if (hasOwnProperty(desc, 'value')) {
+            if (desc.hasOwnProperty('value')) {
                 obj[name] = desc.value;
             }
         };
 
         var defineProperties = Object.defineProperties || function(obj, props) {
             for (var name in props) {
-                if (hasOwnProperty(props, name)) {
+                if (props.hasOwnProperty(name)) {
                     defineProperty(obj, name, props[name]);
                 }
             }
