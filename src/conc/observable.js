@@ -160,8 +160,47 @@ jive.conc.observable = function(klass) {
         return this;
     }
 
+    /**
+     * proxyListener(emitter, event[, renamedEvent][, listener]) -> receiver
+     * - emitter (Object): object to listen to
+     * - event (String): event type to listen for
+     * - renamedEvent (String): optional new name to use when re-emitting events
+     * - listener (Function): optional callback function to register as an event listener
+     *
+     * Listens for an event from emitter and automatically re-emits the same
+     * event.  If `renamedEvent` is given the event will be re-emitted with
+     * that name instead of the original event name.  If `listener` is given it
+     * will be registered as an event handler in addition to re-emitting
+     * events.
+     *
+     * Listeners registered for the re-emitted event will run in the context of
+     * the receiver of proxyListener, not the original emitter of the event.
+     */
+    function proxyListener(obj, event, proxiedEvent, listener) {
+        var that = this;
+
+        if (typeof proxiedEvent == 'function') {
+            listener = proxiedEvent;
+            proxiedEvent = null;
+        }
+        proxiedEvent = proxiedEvent || event;
+
+        if (listener) {
+            obj.addListener(event, listener);
+        }
+
+        obj.addListener(event, function(/* eventParams */) {
+            var eventParams = Array.prototype.slice.call(arguments);
+            eventParams.unshift(proxiedEvent);
+            that.emit.apply(that, eventParams);
+        });
+
+        return this;
+    }
+
     klass.listeners      = listeners;
     klass.addListener    = addListener;
     klass.removeListener = removeListener;
     klass.emit           = emit;
+    klass.proxyListener  = proxyListener;
 };

@@ -19,7 +19,9 @@
 module("jive.conc.observable", {
     setup: function() {
         this.emitter = {};
+        this.controller = {};
         jive.conc.observable(this.emitter);
+        jive.conc.observable(this.controller);
     }
 });
 
@@ -118,4 +120,68 @@ test("method calls return the receiver so that calls can be chained", 3, functio
     ok( this.emitter.addListener('testEvent', function() {}) === this.emitter, "addListener() is chainable" );
     ok( this.emitter.removeListener('testEvent') === this.emitter, "removeListener() is chainable" );
     ok( this.emitter.emit('testEvent') === this.emitter, "emit() is chainable" );
+});
+
+asyncTest("proxies events from other objects", 1, function() {
+    this.controller.proxyListener(this.emitter, 'testEvent');
+    this.controller.addListener('testEvent', function() {
+        ok( true, "received 'testEvent' event" );
+        start();
+    });
+
+    this.emitter.emit('testEvent', 'foo');
+});
+
+asyncTest("proxies events with a different event name", 1, function() {
+    this.controller.proxyListener(this.emitter, 'testEvent', 'higherLevelEvent');
+    this.controller.addListener('higherLevelEvent', function() {
+        ok( true, "received 'higherLevelEvent' event" );
+        start();
+    });
+
+    this.emitter.emit('testEvent', 'foo');
+});
+
+asyncTest("passes original event parameters with proxied events", 1, function() {
+    this.controller.proxyListener(this.emitter, 'testEvent', 'higherLevelEvent');
+    this.controller.addListener('higherLevelEvent', function(a) {
+        ok( a == 'foo', "received 'higherLevelEvent' event with argument 'foo'" );
+        start();
+    });
+
+    this.emitter.emit('testEvent', 'foo');
+});
+
+asyncTest("invokes listeners for proxied events in the context of the proxier", 1, function() {
+    var controller = this.controller;
+
+    this.controller.proxyListener(this.emitter, 'testEvent', 'higherLevelEvent');
+    this.controller.addListener('higherLevelEvent', function() {
+        ok( this === controller, "event listener was invoked in context of proxier" );
+        start();
+    });
+
+    this.emitter.emit('testEvent', 'foo');
+});
+
+asyncTest("runs a callback when an event is proxied", 1, function() {
+    this.controller.proxyListener(this.emitter, 'testEvent', 'higherLevelEvent', function(a) {
+        ok( a == 'foo', "intercepted 'higherLevelEvent' event" );
+        start();
+    });
+
+    this.controller.addListener('higherLevelEvent', function() { });
+
+    this.emitter.emit('testEvent', 'foo');
+});
+
+asyncTest("runs a callback when an event is proxied with its original name", 1, function() {
+    this.controller.proxyListener(this.emitter, 'testEvent', function(a) {
+        ok( a == 'foo', "intercepted 'testEvent' event" );
+        start();
+    });
+
+    this.controller.addListener('testEvent', function() { });
+
+    this.emitter.emit('testEvent', 'foo');
 });
