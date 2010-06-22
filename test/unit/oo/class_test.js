@@ -30,6 +30,12 @@ test("a class constructs an object", 1, function() {
     ok( typeof obj == "object" && obj, "an instance is of type 'object'" );
 });
 
+test("classes keep a reference to their definition", 1, function() {
+    var def = function(protected) { protected.foo = 1; };
+    var klass = jive.oo.Class.extend(def);
+    ok( klass.definition === def, "klass.definition is a reference to the original definition of klass" );
+});
+
 
 module("class members");
 
@@ -196,6 +202,12 @@ test("stateful methods in a superclass affect the state of an instance", 1, func
     obj.inc();
     obj.inc();
     ok( obj.getCount() == 2, "the count of obj is 2" );
+});
+
+test("classes have a 'superclass' property", 1, function() {
+    var klass = jive.oo.Class.extend();
+    var subklass = klass.extend();
+    ok( subklass.superclass === klass, "the super class of subklass is klass" );
 });
 
 

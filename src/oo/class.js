@@ -145,9 +145,11 @@
         Class.prototype  = prototype;
         Class.public     = public;
         Class.protected  = protected;
+        Class.definition = definition;
 
         // Enforce the constructor to be what we expect
         Class.constructor = Class;
+        Class.superclass = this;
 
         // And make this class extendable
         Class.extend = extend;
