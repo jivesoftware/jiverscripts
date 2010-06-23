@@ -57,8 +57,8 @@
         initializing = false;
 
         // Classes are defined by a given function.  Within the function body
-        // properties assigned to `this` become protected members and
-        // properties assigned to the function's argument become public
+        // properties assigned to `this` become public members and
+        // properties assigned to the function's argument become protected
         // members.
         if (typeof definition == 'function') {
             definition.call(public, protected);
