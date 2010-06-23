@@ -120,7 +120,10 @@
             // protected instance.
             function proxy(name) {
                 return function() {
-                    return protectedInstance[name].apply(protectedInstance, arguments);
+                    var ret = protectedInstance[name].apply(protectedInstance, arguments);
+                    // Swap return values if the method returns a reference to
+                    // its receiver.
+                    return ret === protectedInstance ? instance : ret;
                 };
             }
 

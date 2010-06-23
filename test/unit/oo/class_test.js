@@ -94,6 +94,14 @@ test("public methods are always invoked in the context of the object that they b
     ok( hello() == "hello world", "a copied reference of hello() runs in the same context as the original" );
 });
 
+test("public methods that return `this` return reference to the public interface of an object", 1, function() {
+    var klass = jive.oo.Class.extend(function() {
+        this.chain = function() { return this; };
+    });
+    var obj = new klass();
+    ok( obj.chain() === obj, "chain() returns a reference to its receiver" );
+});
+
 
 module("inheritance");
 
