@@ -52,7 +52,8 @@
         // Instantiate a base class (but only create the instance,
         // don't run the init constructor)
         initializing = true;
-        var public = new this();
+        var prototype = new this();
+        var public    = create(this.public || {});
         var protected = create(_super);
         initializing = false;
 
@@ -112,34 +113,35 @@
 
         // The dummy class constructor
         function Class() {
-            var public = this
-              , protected = create(Class.protected);
+            var instance = this
+              , protectedInstance = create(Class.protected);
 
             // Wrap public methods so that they run in the context of the
             // protected instance.
             function proxy(name) {
                 return function() {
-                    return protected[name].apply(protected, arguments);
+                    return protectedInstance[name].apply(protectedInstance, arguments);
                 };
             }
 
-            for (var name in public) {
-                if (typeof public[name] == 'function') {
-                    public[name] = proxy(name);
+            for (var name in Class.public) {
+                if (typeof Class.public[name] == 'function') {
+                    instance[name] = proxy(name);
                 }
             }
 
             // All construction is actually done in the init method
-            if ( !initializing && protected.init ) {
-                protected.init.apply(protected, arguments);
+            if ( !initializing && protectedInstance.init ) {
+                protectedInstance.init.apply(protectedInstance, arguments);
             }
 
-            return public;
+            return instance;
         }
 
         // Populate our constructed prototype object
-        Class.prototype = public;
-        Class.protected = protected;
+        Class.prototype  = prototype;
+        Class.public     = public;
+        Class.protected  = protected;
 
         // Enforce the constructor to be what we expect
         Class.constructor = Class;

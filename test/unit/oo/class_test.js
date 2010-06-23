@@ -176,6 +176,20 @@ test("overridden protected methods can invoke the super definition of the same m
     ok( obj.getSum(2, 3) == "sum is: 5", "sum() decorates its super definition" );
 });
 
+test("stateful methods in a superclass affect the state of an instance", 1, function() {
+    var klass = jive.oo.Class.extend(function() {
+        this.init = function(n) { this.count = (n || 0); };
+        this.inc  = function(n) { this.count += (n || 1); };
+    });
+    var subklass = klass.extend(function() {
+        this.getCount = function() { return this.count; };
+    });
+    var obj = new subklass();
+    obj.inc();
+    obj.inc();
+    ok( obj.getCount() == 2, "the count of obj is 2" );
+});
+
 
 module("initializing");
 
