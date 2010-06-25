@@ -52,8 +52,8 @@
  * emitted the event.
  */
 
-/*jslint browser:true */
-/*extern jive */
+/*jslint undef:true laxbreak:true browser:true */
+/*global jive */
 
 jive = this.jive || {};
 jive.conc = jive.conc || {};
@@ -161,6 +161,24 @@ jive.conc.observable = function(klass) {
     }
 
     /**
+     * emitP(event[, eventParam, ...]) -> jive.conc.Promise
+     * - event (String): event to emit
+     * - eventParam (*): zero or more event parameters to pass as arguments to event listeners
+     *
+     * Behaves the same as `emit()` except that this function creates a promise
+     * which is passed with `event` as an additional event parameter and that
+     * is returned by `eventP()`.
+     *
+     * Requires jive.conc.Promise.
+     */
+    function emitP(event/*, eventParams */) {
+        var args = Array.prototype.slice.call(arguments)
+          , promise = new jive.conc.Promise();
+        this.emit.apply(this, args.concat(promise));
+        return promise;
+    }
+
+    /**
      * proxyListener(emitter, event[, renamedEvent][, listener]) -> receiver
      * - emitter (Object): object to listen to
      * - event (String): event type to listen for
@@ -202,5 +220,6 @@ jive.conc.observable = function(klass) {
     klass.addListener    = addListener;
     klass.removeListener = removeListener;
     klass.emit           = emit;
+    klass.emitP          = emitP;
     klass.proxyListener  = proxyListener;
 };

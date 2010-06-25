@@ -14,7 +14,8 @@
  * limitations under the License.
  */
 
-/*extern module test asyncTest ok */
+/*jslint undef:true laxbreak:true */
+/*global module test asyncTest ok start jive */
 
 module("jive.conc.observable", {
     setup: function() {
@@ -120,6 +121,21 @@ test("method calls return the receiver so that calls can be chained", 3, functio
     ok( this.emitter.addListener('testEvent', function() {}) === this.emitter, "addListener() is chainable" );
     ok( this.emitter.removeListener('testEvent') === this.emitter, "removeListener() is chainable" );
     ok( this.emitter.emit('testEvent') === this.emitter, "emit() is chainable" );
+});
+
+test("returns a promise when emitting an event", 1, function() {
+    var promise = this.emitter.emitP('testEvent', 'foo', 1);
+    ok( promise instanceof jive.conc.Promise, "emitP() returns a promise" );
+});
+
+asyncTest("passes promise as an event parameter", 2, function() {
+    var promise;
+    this.emitter.addListener('testEvent', function(a, b, p) {
+        ok( p instanceof jive.conc.Promise, "a promise was given as an event parameter" );
+        ok( p === promise, "the same promise that was returned by emitP() was given as an event parameter" );
+        start();
+    });
+    promise = this.emitter.emitP('testEvent', 'foo', 1);
 });
 
 asyncTest("proxies events from other objects", 1, function() {
