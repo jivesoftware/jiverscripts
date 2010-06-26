@@ -14,7 +14,21 @@
  * limitations under the License.
  */
 
-(function(){
+/**
+ * Given two or more classes `compose()` creates a new class that inherits from
+ * all of the composed classes.  The composed classes may have declare their
+ * own superclasses; but they and their superclasses must form a linear
+ * hierarchy.
+ *
+ * This implementation is similar to Traits as mixins in Scala, except that in
+ * this implementation there is no distinction between classes and traits.
+ *
+ * @function
+ * @param   {...jive.oo.Class}  classes     two or more classes to compose
+ * @returns {jive.oo.Class} returns a new class that inherits from all of the composed classes
+ * @requires jive.oo.Class
+ */
+jive.oo.compose = (function(){
     // Returns true if the given array contains the given element and false
     // otherwise.
     function contains(array, e) {
@@ -26,7 +40,7 @@
         return false;
     }
 
-    function compose(/* classes */) {
+    return function compose(/* classes */) {
         var classes = Array.prototype.slice.call(arguments)
           , original = jive.oo.Class
           , chain = []
@@ -56,9 +70,5 @@
         }
 
         return comp;
-    }
-
-    this.jive = this.jive || {};
-    jive.oo = jive.oo || {};
-    jive.oo.compose = compose;
+    };
 })();

@@ -15,58 +15,56 @@
  */
 
 /**
- * Object.create(obj) -> Object
- * - obj (Object): existing object to create a descendant of
- *
  * Returns a new object that has the given `obj` as its prototype.  This method
  * can be used to get prototypal inheritance without using the `new` keyword
  * directly.
  *
  * This implementation comes from:
  * http://ejohn.org/blog/ecmascript-5-objects-and-properties/
- */
-if (typeof Object.create == 'undefined') {
-    (function() {
-        var defineProperty = Object.defineProperty || function(obj, name, desc) {
-            if (desc.hasOwnProperty('value')) {
-                obj[name] = desc.value;
-            }
-        };
-
-        var defineProperties = Object.defineProperties || function(obj, props) {
-            for (var name in props) {
-                if (props.hasOwnProperty(name)) {
-                    defineProperty(obj, name, props[name]);
-                }
-            }
-        };
-
-        Object.create = function( proto, props ) {
-            var ctor = function( ps ) {
-                if ( ps ) {
-                    defineProperties( this, ps );
-                }
-            };
-            ctor.prototype = proto;
-            return new ctor( props );
-        };
-    })();
-}
-
-/**
- * Object.keys(obj) -> [string]
- * - obj (Object): object to read keys from
  *
- * Returns an array of the attribute names on `obj`.
- **/
-if (typeof Object.keys == 'undefined') {
-    Object.keys = function(obj) {
-        var keys = [];
-        for ( var k in obj ) {
-            if (obj.hasOwnProperty(k)) {
-                keys.push(k);
+ * @function
+ * @param   {Object}    obj existing object to create a descendant of
+ * @returns {Object}    a new object that inherits from `obj`
+ */
+Object.create = Object.create || (function() {
+    var defineProperty = Object.defineProperty || function(obj, name, desc) {
+        if (desc.hasOwnProperty('value')) {
+            obj[name] = desc.value;
+        }
+    };
+
+    var defineProperties = Object.defineProperties || function(obj, props) {
+        for (var name in props) {
+            if (props.hasOwnProperty(name)) {
+                defineProperty(obj, name, props[name]);
             }
         }
-        return keys;
     };
-}
+
+    return function( proto, props ) {
+        var ctor = function( ps ) {
+            if ( ps ) {
+                defineProperties( this, ps );
+            }
+        };
+        ctor.prototype = proto;
+        return new ctor( props );
+    };
+})();
+
+/**
+ * Returns an array of the attribute names on `obj`.
+ *
+ * @function
+ * @param   {Object}    obj object to read keys from
+ * @returns {string[]}  array of attribute names on `obj`
+ */
+Object.keys = Object.keys || function(obj) {
+    var keys = [];
+    for ( var k in obj ) {
+        if (obj.hasOwnProperty(k)) {
+            keys.push(k);
+        }
+    }
+    return keys;
+};

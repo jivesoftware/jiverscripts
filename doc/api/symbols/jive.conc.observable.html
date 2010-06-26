@@ -1,0 +1,764 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+	<head>
+		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+		<meta name="generator" content="JsDoc Toolkit" />
+		
+		<title>JsDoc Reference - jive.conc.observable</title>
+
+		<style type="text/css">
+			/* default.css */
+body
+{
+	font: 12px "Lucida Grande", Tahoma, Arial, Helvetica, sans-serif;
+	width: 800px;
+}
+
+.header
+{
+	clear: both;
+	background-color: #ccc;
+	padding: 8px;
+}
+
+h1
+{
+	font-size: 150%;
+	font-weight: bold;
+	padding: 0;
+	margin: 1em 0 0 .3em;
+}
+
+hr
+{
+	border: none 0;
+	border-top: 1px solid #7F8FB1;
+	height: 1px;
+}
+
+pre.code
+{
+	display: block;
+	padding: 8px;
+	border: 1px dashed #ccc;
+}
+
+#index
+{
+	margin-top: 24px;
+	float: left;
+	width: 160px;
+	position: absolute;
+	left: 8px;
+	background-color: #F3F3F3;
+	padding: 8px;
+}
+
+#content
+{
+	margin-left: 190px;
+	width: 600px;
+}
+
+.classList
+{
+	list-style-type: none;
+	padding: 0;
+	margin: 0 0 0 8px;
+	font-family: arial, sans-serif;
+	font-size: 1em;
+	overflow: auto;
+}
+
+.classList li
+{
+	padding: 0;
+	margin: 0 0 8px 0;
+}
+
+.summaryTable { width: 100%; }
+
+h1.classTitle
+{
+	font-size:170%;
+	line-height:130%;
+}
+
+h2 { font-size: 110%; }
+caption, div.sectionTitle
+{
+	background-color: #7F8FB1;
+	color: #fff;
+	font-size:130%;
+	text-align: left;
+	padding: 2px 6px 2px 6px;
+	border: 1px #7F8FB1 solid;
+}
+
+div.sectionTitle { margin-bottom: 8px; }
+.summaryTable thead { display: none; }
+
+.summaryTable td
+{
+	vertical-align: top;
+	padding: 4px;
+	border-bottom: 1px #7F8FB1 solid;
+	border-right: 1px #7F8FB1 solid;
+}
+
+/*col#summaryAttributes {}*/
+.summaryTable td.attributes
+{
+	border-left: 1px #7F8FB1 solid;
+	width: 140px;
+	text-align: right;
+}
+
+td.attributes, .fixedFont
+{
+	line-height: 15px;
+	color: #002EBE;
+	font-family: "Courier New",Courier,monospace;
+	font-size: 13px;
+}
+
+.summaryTable td.nameDescription
+{
+	text-align: left;
+	font-size: 13px;
+	line-height: 15px;
+}
+
+.summaryTable td.nameDescription, .description
+{
+	line-height: 15px;
+	padding: 4px;
+	padding-left: 4px;
+}
+
+.summaryTable { margin-bottom: 8px; }
+
+ul.inheritsList
+{
+	list-style: square;
+	margin-left: 20px;
+	padding-left: 0;
+}
+
+.detailList {
+	margin-left: 20px; 
+	line-height: 15px;
+}
+.detailList dt { margin-left: 20px; }
+
+.detailList .heading
+{
+	font-weight: bold;
+	padding-bottom: 6px;
+	margin-left: 0;
+}
+
+.light, td.attributes, .light a:link, .light a:visited
+{
+	color: #777;
+	font-style: italic;
+}
+
+.fineprint
+{
+	text-align: right;
+	font-size: 10px;
+}
+		</style>
+	</head>
+
+	<body>
+<!-- ============================== header ================================= -->	
+		<!-- begin static/header.html -->
+		<div id="header">
+</div>
+		<!-- end static/header.html -->
+
+<!-- ============================== classes index ============================ -->
+		<div id="index">
+			<!-- begin publish.classesIndex -->
+			<div align="center"><a href="../index.html">Class Index</a>
+| <a href="../files.html">File Index</a></div>
+<hr />
+<h2>Classes</h2>
+<ul class="classList">
+	
+	<li><i><a href="../symbols/_global_.html">_global_</a></i></li>
+	
+	<li><a href="../symbols/Array.html">Array</a></li>
+	
+	<li><a href="../symbols/jive.conc.html">jive.conc</a></li>
+	
+	<li><a href="../symbols/jive.conc.observable.html">jive.conc.observable</a></li>
+	
+	<li><a href="../symbols/jive.conc.Promise.html">jive.conc.Promise</a></li>
+	
+	<li><a href="../symbols/jive.oo.html">jive.oo</a></li>
+	
+	<li><a href="../symbols/jive.oo.Class.html">jive.oo.Class</a></li>
+	
+	<li><a href="../symbols/Object.html">Object</a></li>
+	
+</ul>
+<hr />
+			<!-- end publish.classesIndex -->
+		</div>
+		
+		<div id="content">
+<!-- ============================== class title ============================ -->
+			<h1 class="classTitle">
+				
+				Class jive.conc.observable
+			</h1>
+
+<!-- ============================== class summary ========================== -->			
+			<p class="description">
+				
+				
+			
+				
+				
+				
+					<br /><i>Defined in: </i> <a href="../symbols/src/_home_jesse_projects_jive_jiverscripts_src_conc_observable.js.html">observable.js</a>.
+				
+			</p>
+
+<!-- ============================== constructor summary ==================== -->			
+			
+			<table class="summaryTable" cellspacing="0" summary="A summary of the constructor documented in the class jive.conc.observable.">
+				<caption>Class Summary</caption>
+				<thead>
+					<tr>
+						<th scope="col">Constructor Attributes</th>
+						<th scope="col">Constructor Name and Description</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td class="attributes">&nbsp;</td>
+						<td class="nameDescription" >
+							<div class="fixedFont">
+								<b><a href="../symbols/jive.conc.observable.html#constructor">jive.conc.observable</a></b>(klass)
+							</div>
+							<div class="description">This is a mix in that can add methods to any object for emitting events and
+for registering event listeners.</div>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+			
+
+<!-- ============================== properties summary ===================== -->
+			
+
+<!-- ============================== methods summary ======================== -->
+			
+				
+				
+				<table class="summaryTable" cellspacing="0" summary="A summary of the methods documented in the class jive.conc.observable.">
+					<caption>Method Summary</caption>
+					<thead>
+						<tr>
+							<th scope="col">Method Attributes</th>
+							<th scope="col">Method Name and Description</th>
+						</tr>
+					</thead>
+					<tbody>
+					
+						<tr>
+							<td class="attributes">&nbsp;</td>
+							<td class="nameDescription">
+								<div class="fixedFont"><b><a href="../symbols/jive.conc.observable.html#addListener">addListener</a></b>(type, listener)
+								</div>
+								<div class="description">Registers an event listener on the receiver for the given type of event.</div>
+							</td>
+						</tr>
+					
+						<tr>
+							<td class="attributes">&nbsp;</td>
+							<td class="nameDescription">
+								<div class="fixedFont"><b><a href="../symbols/jive.conc.observable.html#emit">emit</a></b>(type, eventParams)
+								</div>
+								<div class="description">Emits an event, thus causing any event listeners registered on the
+receiver for that event to be invoked asynchronously.</div>
+							</td>
+						</tr>
+					
+						<tr>
+							<td class="attributes">&nbsp;</td>
+							<td class="nameDescription">
+								<div class="fixedFont"><b><a href="../symbols/jive.conc.observable.html#emitP">emitP</a></b>(type, eventParams)
+								</div>
+								<div class="description">Behaves the same as `emit()` except that this function creates a promise
+which is passed with the event as an additional event parameter and that
+is returned by `eventP()`.</div>
+							</td>
+						</tr>
+					
+						<tr>
+							<td class="attributes">&nbsp;</td>
+							<td class="nameDescription">
+								<div class="fixedFont"><b><a href="../symbols/jive.conc.observable.html#listeners">listeners</a></b>(type)
+								</div>
+								<div class="description">Returns an array of event listeners (functions) registered on the
+receiver for the given type of event.</div>
+							</td>
+						</tr>
+					
+						<tr>
+							<td class="attributes">&nbsp;</td>
+							<td class="nameDescription">
+								<div class="fixedFont"><b><a href="../symbols/jive.conc.observable.html#proxyListener">proxyListener</a></b>(emitter, type, newType, listener)
+								</div>
+								<div class="description">Listens for an event from emitter and automatically re-emits the same
+event.</div>
+							</td>
+						</tr>
+					
+						<tr>
+							<td class="attributes">&nbsp;</td>
+							<td class="nameDescription">
+								<div class="fixedFont"><b><a href="../symbols/jive.conc.observable.html#removeListener">removeListener</a></b>(type, listener)
+								</div>
+								<div class="description">Un-registers the given listener from the receiver as a listener for the
+given type of event.</div>
+							</td>
+						</tr>
+					
+					</tbody>
+				</table>
+				
+				
+				
+			
+<!-- ============================== events summary ======================== -->
+			
+
+<!-- ============================== constructor details ==================== -->		
+			
+			<div class="details"><a name="constructor"> </a>
+				<div class="sectionTitle">
+					Class Detail
+				</div>
+				
+				<div class="fixedFont">
+						<b>jive.conc.observable</b>(klass)
+				</div>
+				
+				<div class="description">
+					<p>This is a mix in that can add methods to any object for emitting events and
+for registering event listeners.  This can be useful, for example, to create
+view classes that emit events that a controller class can listen to and
+handle.  That way view classes can push information to the controller
+without having to know about the implementation of the controller.</p>
+
+<p>jive.conc.observable is a function.  Call it with some object as an argument
+and it will add methods to that object.  For example:</p>
+
+<pre><code>var MyClass = function(...) { ... };
+jive.conc.observable(MyClass.prototype);
+
+var myObj = new MyClass();
+myObj.addListener('someChange', function(changedValue) {
+    alert(changedValue + ' just changed!');
+});
+myObj.listeners('someChange');  //=&gt; [function(changedValue) { ... }]
+</code></pre>
+
+<p>The events that jive.conc.observable makes possible are completely distinct
+from DOM events.  These events are triggered on JavaScript objects, not DOM
+elements.  However as with DOM events, listeners registered via
+jive.conc.observable will be called asynchronously.  That means that
+whatever bit of code emits an event will have to return control to the event
+loop before any event listeners are called.</p>
+
+<p>Events may include any number of event parameters, which will be passed as
+arguments to event listeners.</p>
+
+<p>Event listeners will be invoked in the context of the observable object.  So
+in the body of an event listener <code>this</code> will refer to the object that
+emitted the event.</p>
+					
+				</div>
+				
+				
+				
+				
+					
+						<dl class="detailList">
+						<dt class="heading">Parameters:</dt>
+						
+							<dt>
+								<span class="light fixedFont">{<a href="../symbols/Object.html">Object</a>}</span>  <b>klass</b>
+								
+							</dt>
+								<dd>object to mix observable methods into</dd>
+						
+						</dl>
+					
+					
+					
+					
+					
+					
+					
+
+			</div>
+			
+
+<!-- ============================== field details ========================== -->		
+			
+
+<!-- ============================== method details ========================= -->		
+			
+				<div class="sectionTitle">
+					Method Detail
+				</div>
+				
+					<a name="addListener"> </a>
+					<div class="fixedFont">
+					
+					<span class="light">{<a href="../symbols/jive.conc.observable.html">jive.conc.observable</a>}</span>
+					<b>addListener</b>(type, listener)
+					
+					</div>
+					<div class="description">
+						<p>Registers an event listener on the receiver for the given type of event.
+When that event is emitted by the receiver <code>listener</code> will be invoked
+asynchronously with any event parameters as arguments.</p>
+						
+						
+					</div>
+					
+					
+					
+						
+							<dl class="detailList">
+							<dt class="heading">Parameters:</dt>
+							
+								<dt>
+									<span class="light fixedFont">{string}</span> <b>type</b>
+									
+								</dt>
+								<dd>type of event to listen for</dd>
+							
+								<dt>
+									<span class="light fixedFont">{Function}</span> <b>listener</b>
+									
+								</dt>
+								<dd>function to invoke when the given event occurs</dd>
+							
+							</dl>
+						
+						
+						
+						
+						
+							<dl class="detailList">
+							<dt class="heading">Returns:</dt>
+							
+								<dd><span class="light fixedFont">{<a href="../symbols/jive.conc.observable.html">jive.conc.observable</a>}</span> returns the receiver so that this method can be cascaded</dd>
+							
+							</dl>
+						
+						
+						
+
+					<hr />
+				
+					<a name="emit"> </a>
+					<div class="fixedFont">
+					
+					<span class="light">{<a href="../symbols/jive.conc.observable.html">jive.conc.observable</a>}</span>
+					<b>emit</b>(type, eventParams)
+					
+					</div>
+					<div class="description">
+						<p>Emits an event, thus causing any event listeners registered on the
+receiver for that event to be invoked asynchronously.  Any event
+parameters that are given will be passed as arguments to event
+listeners.</p>
+						
+						
+					</div>
+					
+					
+					
+						
+							<dl class="detailList">
+							<dt class="heading">Parameters:</dt>
+							
+								<dt>
+									<span class="light fixedFont">{string}</span> <b>type</b>
+									
+								</dt>
+								<dd>type of event to emit</dd>
+							
+								<dt>
+									<span class="light fixedFont">{...any}</span> <b>eventParams</b>
+									<i>Optional</i>
+								</dt>
+								<dd>zero or more event parameters to pass as arguments to event listeners</dd>
+							
+							</dl>
+						
+						
+						
+						
+						
+							<dl class="detailList">
+							<dt class="heading">Returns:</dt>
+							
+								<dd><span class="light fixedFont">{<a href="../symbols/jive.conc.observable.html">jive.conc.observable</a>}</span> returns the receiver so that this method can be cascaded</dd>
+							
+							</dl>
+						
+						
+						
+
+					<hr />
+				
+					<a name="emitP"> </a>
+					<div class="fixedFont">
+					
+					<span class="light">{<a href="../symbols/jive.conc.Promise.html">jive.conc.Promise</a>}</span>
+					<b>emitP</b>(type, eventParams)
+					
+					</div>
+					<div class="description">
+						<p>Behaves the same as <code>emit()</code> except that this function creates a promise
+which is passed with the event as an additional event parameter and that
+is returned by <code>eventP()</code>.</p>
+						
+						
+					</div>
+					
+					
+					
+						
+							<dl class="detailList">
+							<dt class="heading">Parameters:</dt>
+							
+								<dt>
+									<span class="light fixedFont">{string}</span> <b>type</b>
+									
+								</dt>
+								<dd>type of event to emit</dd>
+							
+								<dt>
+									<span class="light fixedFont">{...any}</span> <b>eventParams</b>
+									<i>Optional</i>
+								</dt>
+								<dd>zero or more event parameters to pass as arguments to event listeners</dd>
+							
+							</dl>
+						
+						
+						
+						
+						
+							<dl class="detailList">
+							<dt class="heading">Returns:</dt>
+							
+								<dd><span class="light fixedFont">{<a href="../symbols/jive.conc.Promise.html">jive.conc.Promise</a>}</span> returns a promise that is also passed with event parameters</dd>
+							
+							</dl>
+						
+						
+							<dl class="detailList">
+							<dt class="heading">Requires:</dt>
+							
+								<dd>jive.conc.Promise</dd>
+							
+							</dl>
+						
+						
+
+					<hr />
+				
+					<a name="listeners"> </a>
+					<div class="fixedFont">
+					
+					<span class="light">{Function[]}</span>
+					<b>listeners</b>(type)
+					
+					</div>
+					<div class="description">
+						<p>Returns an array of event listeners (functions) registered on the
+receiver for the given type of event.  Returns an empty array if no
+listeners are registered.</p>
+						
+						
+					</div>
+					
+					
+					
+						
+							<dl class="detailList">
+							<dt class="heading">Parameters:</dt>
+							
+								<dt>
+									<span class="light fixedFont">{string}</span> <b>type</b>
+									
+								</dt>
+								<dd>listeners for this type of event will be returned</dd>
+							
+							</dl>
+						
+						
+						
+						
+						
+							<dl class="detailList">
+							<dt class="heading">Returns:</dt>
+							
+								<dd><span class="light fixedFont">{Function[]}</span> array of event listeners</dd>
+							
+							</dl>
+						
+						
+						
+
+					<hr />
+				
+					<a name="proxyListener"> </a>
+					<div class="fixedFont">
+					
+					<span class="light">{<a href="../symbols/jive.conc.observable.html">jive.conc.observable</a>}</span>
+					<b>proxyListener</b>(emitter, type, newType, listener)
+					
+					</div>
+					<div class="description">
+						<p>Listens for an event from emitter and automatically re-emits the same
+event.  If <code>newType</code> is given the event will be re-emitted with
+that name instead of the original event name.  If <code>listener</code> is given it
+will be registered as an event handler in addition to re-emitting
+events.</p>
+
+<p>Listeners registered for the re-emitted event will run in the context of
+the receiver of proxyListener, not the original emitter of the event.</p>
+						
+						
+					</div>
+					
+					
+					
+						
+							<dl class="detailList">
+							<dt class="heading">Parameters:</dt>
+							
+								<dt>
+									<span class="light fixedFont">{<a href="../symbols/jive.conc.observable.html">jive.conc.observable</a>}</span> <b>emitter</b>
+									
+								</dt>
+								<dd>event emitting object to proxy events from</dd>
+							
+								<dt>
+									<span class="light fixedFont">{string}</span> <b>type</b>
+									
+								</dt>
+								<dd>type of event to listen for</dd>
+							
+								<dt>
+									<span class="light fixedFont">{string}</span> <b>newType</b>
+									<i>Optional</i>
+								</dt>
+								<dd>type of the event that will be re-emitted</dd>
+							
+								<dt>
+									<span class="light fixedFont">{Function}</span> <b>listener</b>
+									<i>Optional</i>
+								</dt>
+								<dd>callback function to register as an event listener</dd>
+							
+							</dl>
+						
+						
+						
+						
+						
+							<dl class="detailList">
+							<dt class="heading">Returns:</dt>
+							
+								<dd><span class="light fixedFont">{<a href="../symbols/jive.conc.observable.html">jive.conc.observable</a>}</span> returns the receiver so that this method can be cascaded</dd>
+							
+							</dl>
+						
+						
+						
+
+					<hr />
+				
+					<a name="removeListener"> </a>
+					<div class="fixedFont">
+					
+					<span class="light">{<a href="../symbols/jive.conc.observable.html">jive.conc.observable</a>}</span>
+					<b>removeListener</b>(type, listener)
+					
+					</div>
+					<div class="description">
+						<p>Un-registers the given listener from the receiver as a listener for the
+given type of event.  If no <code>listener</code> argument is given removes all
+listeners for the given event type.</p>
+						
+						
+					</div>
+					
+					
+					
+						
+							<dl class="detailList">
+							<dt class="heading">Parameters:</dt>
+							
+								<dt>
+									<span class="light fixedFont">{string}</span> <b>type</b>
+									
+								</dt>
+								<dd>type of event to stop listening for</dd>
+							
+								<dt>
+									<span class="light fixedFont">{Function}</span> <b>listener</b>
+									<i>Optional</i>
+								</dt>
+								<dd>specific listener to remove</dd>
+							
+							</dl>
+						
+						
+						
+						
+						
+							<dl class="detailList">
+							<dt class="heading">Returns:</dt>
+							
+								<dd><span class="light fixedFont">{<a href="../symbols/jive.conc.observable.html">jive.conc.observable</a>}</span> returns the receiver so that this method can be cascaded</dd>
+							
+							</dl>
+						
+						
+						
+
+					
+				
+			
+			
+<!-- ============================== event details ========================= -->		
+			
+			
+			<hr />
+		</div>
+
+		
+<!-- ============================== footer ================================= -->
+		<div class="fineprint" style="clear:both">
+			
+			Documentation generated by <a href="http://code.google.com/p/jsdoc-toolkit/" target="_blank">JsDoc Toolkit</a> 2.3.2 on Tue Jun 29 2010 11:53:51 GMT-0700 (PDT)
+		</div>
+	</body>
+</html>

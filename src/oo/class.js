@@ -14,14 +14,42 @@
  * limitations under the License.
  */
 
-// Adapted from:
-// http://ejohn.org/blog/simple-javascript-inheritance/
 
 /*jslint laxbreak:true forin:true browser:true */
 /*extern jive */
 
-// Inspired by base2 and Prototype
-(function(){
+this.jive = this.jive || {};
+/**
+ * Namespace grouping together classes and functions that provide
+ * object-oriented support.
+ *
+ * @namespace
+ * @name jive.oo
+ */
+jive.oo = jive.oo || {};
+
+/**
+ * An implementation of classical inheritance in JavaScript adapted from [John
+ * Resig's Simple JavaScript Inheritance][1].
+ *
+ * This adaptation supports true protected members and supports class
+ * composition via {@link jive.oo.compose}.
+ *
+ * [1]: http://ejohn.org/blog/simple-javascript-inheritance/  "Simple JavaScript Inheritance"
+ *
+ * @class
+ */
+jive.oo.Class = function(){};
+
+/**
+ * Creates a new subclass.  The subclass will also have its own `extend()`
+ * method.
+ *
+ * @function
+ * @param   {Function|Object}   definition  definition of the methods and properties of the new class
+ * @returns {jive.oo.Class} returns a new subclass
+ */
+jive.oo.Class.extend = (function(){
     /**
      * Returns a new object that has the given `obj` as its prototype.  This method
      * can be used to get prototypal inheritance without using the `new` keyword
@@ -39,13 +67,8 @@
     var initializing = false
       , fnTest = /xyz/.test(function(){return 'xyz';}) ? /\b_super\b/ : /.*/;
 
-    // The base Class implementation (does nothing)
-    this.jive = this.jive || {};
-    jive.oo = jive.oo || {};
-    jive.oo.Class = function(){};
-
     // Create a new Class that inherits from this class
-    jive.oo.Class.extend = function extend(definition) {
+    return function extend(definition) {
         var _super = this.protected || {}
           , name;
 

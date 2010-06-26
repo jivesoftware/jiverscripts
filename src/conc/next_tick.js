@@ -14,58 +14,67 @@
  * limitations under the License.
  */
 
-/**
- * jive.conc.nextTick(fn) -> undefined
- * - fn (Function): function to invoke asynchronously
- *
- * no dependencies
- *
- * Invokes the given function asynchrously with the smallest delay possible.
- *
- * This code is adapted from David Baron's example:
- * http://dbaron.org/log/20100309-faster-timeouts
- */
-
-/*jslint browser:true */
+/*jslint undef:true browser:true */
 /*extern jive */
 
 jive = this.jive || {};
+/**
+ * Namespace grouping together classes and functions dealing with events and
+ * asynchronous execution.
+ *
+ * @namespace
+ * @name jive.conc
+ */
 jive.conc = jive.conc || {};
 
-// For browsers that support it, the postMessage API is the lowest-latency
-// option for running code asynchronously.
-if (window.postMessage && window.addEventListener) {
-    (function() {
-        var timeouts = [],
-            messageName = "next-tick-message";
-    
-        // Like setTimeout, but only takes a function argument.  There's
-        // no time argument (always zero) and no arguments (you have to
-        // use a closure).
-        function nextTick(fn) {
-            timeouts.push(fn);
-            window.postMessage(messageName, "*");
-        }
-    
-        function handleMessage(event) {
-            if (event.source == window && event.data == messageName) {
-                event.stopPropagation();
-                if (timeouts.length > 0) {
-                    var fn = timeouts.shift();
-                    fn();
+/**
+ * Invokes the given function asynchrously with the smallest delay possible.
+ * Using this function is similar to calling `setTimeout()` with a delay of
+ * zero milliseconds - except that `nextTick()` should invoke callbacks with a
+ * much shorter delay than `setTimeout()` does.
+ *
+ * This code is adapted from [David Baron's example][1].
+ *
+ * [1]: http://dbaron.org/log/20100309-faster-timeouts  "Faster Timeouts"
+ *
+ * @function
+ * @param   {Function}  fn  function to invoke asynchronously
+ */
+jive.conc.nextTick = (function() {
+    // For browsers that support it, the postMessage API is the lowest-latency
+    // option for running code asynchronously.
+    if (window.postMessage && window.addEventListener) {
+        return (function() {
+            var timeouts = [],
+                messageName = "next-tick-message";
+
+            // Like setTimeout, but only takes a function argument.  There's
+            // no time argument (always zero) and no arguments (you have to
+            // use a closure).
+            function nextTick(fn) {
+                timeouts.push(fn);
+                window.postMessage(messageName, "*");
+            }
+
+            function handleMessage(event) {
+                if (event.source == window && event.data == messageName) {
+                    event.stopPropagation();
+                    if (timeouts.length > 0) {
+                        var fn = timeouts.shift();
+                        fn();
+                    }
                 }
             }
-        }
-    
-        window.addEventListener("message", handleMessage, true);
-    
-        // Add the one thing we want added to the jive.conc namespace.
-        jive.conc.nextTick = nextTick;
-    })();
 
-// For browsers that do not support postMessage fall back to setTimeout.
-} else {
-    jive.conc.nextTick = function(fn) {
-        setTimeout(fn, 0);
-    };
-}
+            window.addEventListener("message", handleMessage, true);
+
+            return nextTick;
+        })();
+
+    // For browsers that do not support postMessage fall back to setTimeout.
+    } else {
+        return function(fn) {
+            setTimeout(fn, 0);
+        };
+    }
+})();

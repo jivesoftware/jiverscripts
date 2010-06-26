@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 
+/*jslint undef:true browser:true */
+/*extern jive */
+
 /**
- * jive.conc.Promise
- *
- * requires jive.conc.observable
- *
  * Promises are objects that are used to reference the outcomes of asynchronous
  * operations.  This implementation is based on the Promise API formerly
  * implemented in Node.js <http://nodejs.org/>.
@@ -95,14 +94,11 @@
  *
  * A promise will only emit an event once.  Once it has emitted a success,
  * error, or cancel event it will not emit any more events.
+ *
+ * @class
+ * @extends jive.conc.observable
+ * @requires jive.conc.observable
  */
-
-/*jslint browser:true */
-/*extern jive */
-
-jive = jive || {};
-jive.conc = jive.conc || {};
-
 jive.conc.Promise = function() {
     jive.conc.observable(this);
 
@@ -113,12 +109,10 @@ jive.conc.Promise = function() {
         self = this;
 
     /**
-     * addCallback(callback) -> receiver
-     * - callback (Function): function to be called when the promise emits
-     *   'success'
-     * 
-     * Adds a 'success' callback to the promise.  Returns the receiver so that
-     * this method can be cascaded.
+     * Adds a 'success' callback to the promise.
+     *
+     * @param {Function}    listener    function to be called when the promise emits 'success'
+     * @returns {jive.conc.Promise} returns the receiver so that this method can be cascaded
      **/
     this.addCallback = function(listener) {
         this.addListener('success', listener);
@@ -126,12 +120,10 @@ jive.conc.Promise = function() {
     };
 
     /**
-     * addErrback(callback) -> receiver
-     * - callback (Function): function to be called when the promise emits
-     *   'error'
-     * 
-     * Adds an 'error' callback to the promise.  Returns the receiver so that
-     * this method can be cascaded.
+     * Adds an 'error' callback to the promise.
+     *
+     * @param {Function}    listener    function to be called when the promise emits 'error'
+     * @returns {jive.conc.Promise} returns the receiver so that this method can be cascaded
      **/
     this.addErrback = function(listener) {
         this.addListener('error', listener);
@@ -139,13 +131,11 @@ jive.conc.Promise = function() {
     };
 
     /**
-     * addCancelback(callback) -> receiver
-     * - callback (Function): function to be called when the promise emits
-     *   'cancel'
-     * 
      * Adds a 'cancel' callback to the promise.  The promise will emit 'cancel'
-     * when it is explicitly cancelled.  Returns the receiver so that this
-     * method can be cascaded.
+     * when it is explicitly cancelled.
+     *
+     * @param {Function}    listener    function to be called when the promise emits 'cancel'
+     * @returns {jive.conc.Promise} returns the receiver so that this method can be cascaded
      **/
     this.addCancelback = function(listener) {
         this.addListener('cancel', listener);
@@ -153,14 +143,13 @@ jive.conc.Promise = function() {
     };
 
     /**
-     * emitSuccess([eventArg1, eventArg2, ...]) -> undefined
-     * eventArgs (*): arguments to be emitted with the 'success' event
-     *
      * Causes the promise to emit 'success'.  Any arguments given will be
      * passed to callbacks for the promise's 'success' event.
      *
      * Calling this method prevents the promise from emitting any further
      * events.
+     *
+     * @param {...any}  [eventArgs] arguments to be passed to 'success' listeners
      */
     this.emitSuccess = function() {
         var eventArgs = Array.prototype.slice.call(arguments, 0);
@@ -171,14 +160,13 @@ jive.conc.Promise = function() {
     };
 
     /**
-     * emitError([eventArg1, eventArg2, ...]) -> undefined
-     * eventArgs (*): arguments to be emitted with the 'error' event
-     *
      * Causes the promise to emit 'error'.  Any arguments given will be
      * passed to callbacks for the promise's 'error' event.
      *
      * Calling this method prevents the promise from emitting any further
      * events.
+     *
+     * @param {...any} [eventArgs] arguments to be passed to 'error' listeners
      */
     this.emitError = function() {
         var eventArgs = Array.prototype.slice.call(arguments, 0);
@@ -188,14 +176,15 @@ jive.conc.Promise = function() {
         }
     };
 
+    /**
+     * @private
+     */
     function emitCancel() {
         var eventArgs = Array.prototype.slice.call(arguments, 0);
         self.emit.apply(self, ['cancel'].concat(eventArgs));
     };
 
     /**
-     * cancel() -> undefined
-     *
      * Cancels the promise.  This causes the promise to emit 'cancel'.
      *
      * In most cases the class or function that creates a promise will send
@@ -217,11 +206,6 @@ jive.conc.Promise = function() {
     };
 
     /**
-     * timeout(delay) -> receiver
-     * delay (number): time in milliseconds to wait before aborting the promise
-     *
-     * timeout() -> number
-     *
      * Calling this method with a `delay` argument causes the timeout to abort
      * after the given length of time.  If the promise has not emitted some
      * event by the time the timout expires then the promise will emit an
@@ -234,6 +218,10 @@ jive.conc.Promise = function() {
      * return the timeout that has already been set in milliseconds.  If no
      * timeout has been set then calling `timout()` with no arguments will
      * return `undefined`.
+     *
+     * @param {number}  [delay] time in milliseconds to wait before aborting the promise
+     * @returns {number}    Returns the currently set timeout delay if there is:
+     * one.  Otherwise returns the receiver.
      */
     this.timeout = function(timeout) {
         if (typeof timeout == 'undefined') {

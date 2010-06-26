@@ -15,84 +15,85 @@
  */
 
 /**
- * Array#forEach(fun[, thisp]) -> undefined
- * - fun (Function(a[, i]) -> b): function that will be applied to each array
- *   element; the optional second argument is the index of the array element.
- * - thisp (Object): context in which fun will be invoked - `this` in `fun`
- *   will refer to `thisp`.
- *
  * Invokes `fun` on each element of the array in turn.
+ *
+ * The first argument given to `fun` is a single array element and the second
+ * argument is the index of that element in the array.
  *
  * This definition is compatible with the JavaScript 1.6 definition for
  * `Array#forEach` in Spidermonkey.
  *
  * This implementation comes from:
  * https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Objects/Array/forEach
- **/
-if (typeof Array.prototype.forEach == 'undefined') {
-    Array.prototype.forEach = function(fun /*, thisp*/) {
-        var len = this.length >>> 0;
-        if (typeof fun != "function") {
-            throw new TypeError();
-        }
+ *
+ * @function
+ * @param   {Function}  fun     function that will be applied to each array
+ * element
+ * @param   {Object}    [thisp] context in which `fun` will be invoked - `this`
+ * in `fun` will refer to `thisp`
+ */
+Array.prototype.forEach = Array.prototype.forEach || function(fun /*, thisp*/) {
+    var len = this.length >>> 0;
+    if (typeof fun != "function") {
+        throw new TypeError();
+    }
 
-        var thisp = arguments[1];
-        for (var i = 0; i < len; i++) {
-            if (i in this) {
-                fun.call(thisp, this[i], i, this);
-            }
+    var thisp = arguments[1];
+    for (var i = 0; i < len; i++) {
+        if (i in this) {
+            fun.call(thisp, this[i], i, this);
         }
-    };
-}
+    }
+};
 
 /**
- * Array#map(fun[, thisp]) -> [b]
- * - fun (Function(a[, i]) -> b): function that will be applied to each array
- *   element; the optional second argument is the index of the array element.
- * - thisp (Object): context in which fun will be invoked - `this` in `fun`
- *   will refer to `thisp`.
- *
  * Invokes `fun` on each element of the array and returns a new array of the
  * results of each application.
+ *
+ * The first argument to `fun` is a single array
+ * element and the second argument is the index of that element in the array.
  *
  * This definition is compatible with the JavaScript 1.6 definition for
  * `Array#map` in Spidermonkey and with the definition in the Prototype library.
  *
  * This implementation comes from:
  * https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Array/map
- **/
-if (typeof Array.prototype.map == 'undefined') {
-    Array.prototype.map = function(fun /*, thisp*/) {
-        var len = this.length >>> 0;
-        if (typeof fun != "function") {
-            throw new TypeError();
-        }
+ *
+ * @function
+ * @param   {Function}  fun     function that will be applied to each array element
+ * @param   {Object}    [thisp] context in which `fun` will be invoked - `this`
+ * in `fun` will refer to `thisp`
+ * @returns {Array} a new array made up of the return values of every invocation of `fun`
+ */
+Array.prototype.map = Array.prototype.map || function(fun /*, thisp*/) {
+    var len = this.length >>> 0;
+    if (typeof fun != "function") {
+        throw new TypeError();
+    }
 
-        var res = new Array(len);
-        var thisp = arguments[1];
-        for (var i = 0; i < len; i++) {
-            if (i in this) {
-                res[i] = fun.call(thisp, this[i], i);
-            }
+    var res = new Array(len);
+    var thisp = arguments[1];
+    for (var i = 0; i < len; i++) {
+        if (i in this) {
+            res[i] = fun.call(thisp, this[i], i);
         }
+    }
 
-        return res;
-    };
-}
+    return res;
+};
 
 /**
- * Array#reduce(fun[, initial]) -> a
- * - fun (Function(accumulator, element, index, array) -> a)
- *   - accumulator (a): result of application of `fun` to the previous
- *   array element, or `initial` for the first application
- *   - element (b): an element from the array
- *   - index (Number): index of `element` in the original array
- *   - array (Array): reference to the original array
- * - inititial (a): initial value
- *
  * Applies `fun` to `initial` and the first element of the array, and then to the
  * result and the second element, and so on.  Returns the result of applying
  * `fun` to the accumulated value and the last element of the array.
+ *
+ * `fun` is given four arguments:
+ * <ol>
+ * <li>the result of the previous invocation of `fun`, or the initial value on the first invocation</li>
+ * <li>a single array element</li>
+ * <li>the index of that element in the array</li>
+ * <li>the original array</li>
+ * </ol>
  *
  * The 'reduce' algorithm is also known as 'fold' and 'inject'.
  *
@@ -102,208 +103,232 @@ if (typeof Array.prototype.map == 'undefined') {
  *
  * This implementation comes from:
  * https://developer.mozilla.org/En/Core_JavaScript_1.5_Reference/Global_Objects/Array/Reduce
- **/
-if (typeof Array.prototype.reduce == 'undefined') {
-    Array.prototype.reduce = function(fun /*, initial*/) {
-        var len = this.length >>> 0;
-        if (typeof fun != "function") {
-            throw new TypeError();
-        }
-
-        // no value to return if no initial value and an empty array
-        if (len == 0 && arguments.length == 1) {
-            throw new TypeError();
-        }
-
-        var i = 0;
-        if (arguments.length >= 2) {
-            var rv = arguments[1];
-        } else {
-            do {
-                if (i in this) {
-                    rv = this[i++];
-                    break;
-                }
-
-                // if array contains no values, no initial value to return
-                if (++i >= len) {
-                    throw new TypeError();
-                }
-            } while (true);
-        }
-
-        for (; i < len; i++) {
-            if (i in this) {
-                rv = fun.call(null, rv, this[i], i, this);
-            }
-        }
-
-        return rv;
-    };
-}
-
-/**
- * Array#reduceRight()
- */
-if (typeof Array.prototype.reduceRight == 'undefined') {
-    Array.prototype.reduceRight = function(fun /*, initial*/) {
-        var len = this.length >>> 0;
-        if (typeof fun != "function") {
-            throw new TypeError();
-        }
-
-        // no value to return if no initial value, empty array
-        if (len == 0 && arguments.length == 1) {
-            throw new TypeError();
-        }
-
-        var i = len - 1;
-        if (arguments.length >= 2) {
-            var rv = arguments[1];
-        } else {
-            do {
-                if (i in this) {
-                    var rv = this[i--];
-                    break;
-                }
-
-                // if array contains no values, no initial value to return
-                if (--i < 0) {
-                    throw new TypeError();
-                }
-            } while (true);
-        }
-
-        for (; i >= 0; i--) {
-            if (i in this) {
-                rv = fun.call(null, rv, this[i], i, this);
-            }
-        }
-
-        return rv;
-    };
-}
-
-/**
- * Array#filter(fun[, thisp]) -> [a]
- * - fun (Function(a[, i]) -> Boolean): function that will be applied to test
- *   each array element; the optional second argument is the index of the array
- *   element.
- * - thisp (Object): context in which fun will be invoked - `this` in `fun`
- *   will refer to `thisp`.
  *
+ * @function
+ * @param   {Function}  fun     function that will be applied to each array element
+ * @param   {any}       [initial]   initial value; defaults to the first array element
+ * @returns {any}       the return value from the last invocation of `fun`
+ */
+Array.prototype.reduce = Array.prototype.reduce || function(fun /*, initial*/) {
+    var len = this.length >>> 0;
+    if (typeof fun != "function") {
+        throw new TypeError();
+    }
+
+    // no value to return if no initial value and an empty array
+    if (len == 0 && arguments.length == 1) {
+        throw new TypeError();
+    }
+
+    var i = 0;
+    if (arguments.length >= 2) {
+        var rv = arguments[1];
+    } else {
+        do {
+            if (i in this) {
+                rv = this[i++];
+                break;
+            }
+
+            // if array contains no values, no initial value to return
+            if (++i >= len) {
+                throw new TypeError();
+            }
+        } while (true);
+    }
+
+    for (; i < len; i++) {
+        if (i in this) {
+            rv = fun.call(null, rv, this[i], i, this);
+        }
+    }
+
+    return rv;
+};
+
+/**
+ * Applies `fun` to `initial` and the last element of the array, and then to
+ * the result and the second-to-last element, and so on.  Returns the result of
+ * applying `fun` to the accumulated value and the first element of the array.
+ *
+ * `fun` is given four arguments:
+ * <ol>
+ * <li>the result of the previous invocation of `fun`, or the initial value on the first invocation</li>
+ * <li>a single array element</li>
+ * <li>the index of that element in the array</li>
+ * <li>the original array</li>
+ * </ol>
+ *
+ * This method behaves identically to Array#reduce except that it performs a
+ * right-reduce instead of a left-reduce.
+ *
+ * This definition is compatible with the JavaScript 1.6 definition of
+ * `Array#reduceRight` in Spidermonkey.
+ *
+ * This implementation comes from:
+ * https://developer.mozilla.org/En/Core_JavaScript_1.5_Reference/Global_Objects/Array/Reduce
+ *
+ * @function
+ * @param   {Function}  fun     function that will be applied to each array element
+ * @param   {any}       [initial]   initial value; defaults to the last array element
+ * @returns {any}       the return value from the last invocation of `fun`
+ */
+Array.prototype.reduceRight = function(fun /*, initial*/) {
+    var len = this.length >>> 0;
+    if (typeof fun != "function") {
+        throw new TypeError();
+    }
+
+    // no value to return if no initial value, empty array
+    if (len == 0 && arguments.length == 1) {
+        throw new TypeError();
+    }
+
+    var i = len - 1;
+    if (arguments.length >= 2) {
+        var rv = arguments[1];
+    } else {
+        do {
+            if (i in this) {
+                var rv = this[i--];
+                break;
+            }
+
+            // if array contains no values, no initial value to return
+            if (--i < 0) {
+                throw new TypeError();
+            }
+        } while (true);
+    }
+
+    for (; i >= 0; i--) {
+        if (i in this) {
+            rv = fun.call(null, rv, this[i], i, this);
+        }
+    }
+
+    return rv;
+};
+
+/**
  * Applies `fun` to each element of the array and returns a new array of all
  * the values for which `fun` returned `true`.
+ *
+ * The first argument given to `fun` is a single array element and the second
+ * argument is the index of that element in the array.
  *
  * This definition is compatible with the JavaScript 1.6 definition for
  * `Array#filter` in Spidermonkey and with the definition in the Prototype library.
  *
  * This implementation comes from:
  * https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Array/filter
- **/
-if (typeof Array.prototype.filter == 'undefined') {
-    Array.prototype.filter = function(fun /*, thisp*/) {
-        var len = this.length >>> 0;
-        if (typeof fun != "function") {
-            throw new TypeError();
-        }
+ *
+ * @function
+ * @param   {Function}  fun     predicate function that will be applied to each
+ * array element
+ * @param   {Object}    [thisp] context in which `fun` will be invoked - `this`
+ * in `fun` will refer to `thisp`
+ * @returns {Array} a new array containing only the elements for which `fun` return true
+ */
+Array.prototype.filter = Array.prototype.filter || function(fun /*, thisp*/) {
+    var len = this.length >>> 0;
+    if (typeof fun != "function") {
+        throw new TypeError();
+    }
 
-        var res = new Array();
-        var thisp = arguments[1];
-        for (var i = 0; i < len; i++) {
-            if (i in this) {
-                var val = this[i]; // in case fun mutates this
-                if (fun.call(thisp, val, i)) {
-                    res.push(val);
-                }
+    var res = new Array();
+    var thisp = arguments[1];
+    for (var i = 0; i < len; i++) {
+        if (i in this) {
+            var val = this[i]; // in case fun mutates this
+            if (fun.call(thisp, val, i)) {
+                res.push(val);
             }
         }
+    }
 
-        return res;
-    };
-}
+    return res;
+};
 
 /**
- * Array#every(fun[, thisp]) -> boolean
- * - fun (Function(a[, i]) -> boolean): function that will be applied to each
- *   array element; the optional second argument is the index of the array
- *   element.
- * - thisp (Object): context in which fun will be invoked - `this` in `fun`
- *   will refer to `thisp`.
- *
- * Invokes `fun` on each element of the array.  Returns true if every
+ * Invokes `fun` on each element of the array and returns true if every
  * invocation of `fun` returns true or returns a truthy value.  Otherwise
  * returns false.
+ *
+ * The first argument given to `fun` is a single array element and the second
+ * argument is the index of that element in the array.
  *
  * This definition is compatible with the JavaScript 1.6 definition for
  * `Array#every` in Spidermonkey.
  *
  * This implementation comes from:
  * https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Array/every
- **/
-if (typeof Array.prototype.every == 'undefined') {
-    Array.prototype.every = function(fun /*, thisp*/)  {
-        var len = this.length >>> 0;
-        if (typeof fun != "function") {
-            throw new TypeError();
-        }
+ *
+ * @function
+ * @param   {Function}  fun     predicate function that will be applied to each
+ * array element
+ * @param   {Object}    [thisp] context in which `fun` will be invoked - `this`
+ * in `fun` will refer to `thisp`
+ * @returns {Boolean}   true if `fun` returned true for every array element, false otherwise
+ */
+Array.prototype.every = Array.prototype.every || function(fun /*, thisp*/)  {
+    var len = this.length >>> 0;
+    if (typeof fun != "function") {
+        throw new TypeError();
+    }
 
-        var thisp = arguments[1];
-        for (var i = 0; i < len; i++) {
-            if (i in this &&
-                !fun.call(thisp, this[i], i, this)) {
-                return false;
-            }
+    var thisp = arguments[1];
+    for (var i = 0; i < len; i++) {
+        if (i in this &&
+            !fun.call(thisp, this[i], i, this)) {
+            return false;
         }
+    }
 
-        return true;
-    };
-}
+    return true;
+};
 
 /**
- * Array#some(fun[, thisp]) -> boolean
- * - fun (Function(a[, i]) -> boolean): function that will be applied to each
- *   array element; the optional second argument is the index of the array
- *   element.
- * - thisp (Object): context in which fun will be invoked - `this` in `fun`
- *   will refer to `thisp`.
- *
- * Invokes `fun` on each element of the array.  Returns true if at least one
+ * Invokes `fun` on each element of the array and returns true if at least one
  * invocation of `fun` returns true or returns a truthy value.  Otherwise
  * returns false.
+ *
+ * The first argument given to `fun` is a single array element and the second
+ * argument is the index of that element in the array.
  *
  * This definition is compatible with the JavaScript 1.6 definition for
  * `Array#every` in Spidermonkey.
  *
  * This implementation comes from:
  * https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Array/some
- **/
-if (typeof Array.prototype.some == 'undefined') {
-    Array.prototype.some = function(fun /*, thisp*/) {
-        var i = 0,
-            len = this.length >>> 0;
+ *
+ * @function
+ * @param   {Function}  fun     predicate function that will be applied to each
+ * array element
+ * @param   {Object}    [thisp] context in which `fun` will be invoked - `this`
+ * in `fun` will refer to `thisp`
+ * @returns {Boolean}   true if `fun` returned true for some array element, false otherwise
+ */
+Array.prototype.some = Array.prototype.some || function(fun /*, thisp*/) {
+    var i = 0,
+        len = this.length >>> 0;
 
-        if (typeof fun != "function") {
-            throw new TypeError();
+    if (typeof fun != "function") {
+        throw new TypeError();
+    }
+
+    var thisp = arguments[1];
+    for (; i < len; i++) {
+        if (i in this &&
+            fun.call(thisp, this[i], i, this)) {
+            return true;
         }
+    }
 
-        var thisp = arguments[1];
-        for (; i < len; i++) {
-            if (i in this &&
-                fun.call(thisp, this[i], i, this)) {
-                return true;
-            }
-        }
-
-        return false;
-    };
-}
+    return false;
+};
 
 /**
- * Array#indexOf(searchElement[, fromIndex]) -> number
- * - searchElement (any): element to search for within the array
- * - fromIndex (number): index at which to begin the search
- *
  * Compares elements in the array with `searchElement` using strict equality
  * (===).  If any element matches `searchElement` the lowest matching index is
  * returned.  Otherwise -1 is returned.
@@ -315,55 +340,71 @@ if (typeof Array.prototype.some == 'undefined') {
  *
  * This implementation comes from:
  * https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Array/indexOf
+ *
+ * @function
+ * @param   {any}       searchElement   element to search for within the array
+ * @param   {number}    [fromIndex]     index at which to begin search
+ * @returns {number}    the index of the matching element if one is found, -1 otherwise
  */
-if (typeof Array.prototype.indexOf == 'undefined') {
-    Array.prototype.indexOf = function(elt /*, from*/) {
-        var len = this.length >>> 0;
+Array.prototype.indexOf = Array.prototype.indexOf || function(elt /*, from*/) {
+    var len = this.length >>> 0;
 
-        var from = Number(arguments[1]) || 0;
+    var from = Number(arguments[1]) || 0;
+    from = (from < 0)
+        ? Math.ceil(from)
+        : Math.floor(from);
+    if (from < 0) {
+        from += len;
+    }
+
+    for (; from < len; from++) {
+        if (from in this &&
+            this[from] === elt) {
+            return from;
+        }
+    }
+    return -1;
+};
+
+/**
+ * Compares elements in the array with `searchElement` using strict equality
+ * (===).  If any element matches `searchElement` the highest matching index is
+ * returned.  Otherwise -1 is returned.
+ *
+ * You can optionally restrict the search by passing a `fromIndex` argument.
+ *
+ * This definition is compatible with the JavaScript 1.6 definition for
+ * `Array#indexOf` in Spidermonkey.
+ *
+ * This implementation comes from:
+ * https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Array/indexOf
+ *
+ * @function
+ * @param   {any}       searchElement   element to search for within the array
+ * @param   {number}    [fromIndex]     index at which to begin search
+ * @returns {number}    the index of the matching element if one is found, -1 otherwise
+ */
+Array.prototype.lastIndexOf = Array.prototype.lastIndexOf || function(elt /*, from*/)  {
+    var len = this.length;
+
+    var from = Number(arguments[1]);
+    if (isNaN(from)) {
+        from = len - 1;
+    } else {
         from = (from < 0)
             ? Math.ceil(from)
             : Math.floor(from);
         if (from < 0) {
             from += len;
-        }
-
-        for (; from < len; from++) {
-            if (from in this &&
-                this[from] === elt) {
-                return from;
-            }
-        }
-        return -1;
-    };
-}
-
-/**
- * Array#lastIndexOf()
- */
-if (typeof Array.prototype.lastIndexOf == 'undefined') {
-    Array.prototype.lastIndexOf = function(elt /*, from*/)  {
-        var len = this.length;
-
-        var from = Number(arguments[1]);
-        if (isNaN(from)) {
+        } else if (from >= len) {
             from = len - 1;
-        } else {
-            from = (from < 0)
-                ? Math.ceil(from)
-                : Math.floor(from);
-            if (from < 0) {
-                from += len;
-            } else if (from >= len) {
-                from = len - 1;
-            }
         }
+    }
 
-    for (; from > -1; from--) {
-        if (from in this &&
-            this[from] === elt)
-            return from;
-        }
-        return -1;
-    };
-}
+for (; from > -1; from--) {
+    if (from in this &&
+        this[from] === elt)
+        return from;
+    }
+    return -1;
+};

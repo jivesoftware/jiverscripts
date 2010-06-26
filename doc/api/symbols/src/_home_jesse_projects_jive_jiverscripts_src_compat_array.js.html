@@ -1,0 +1,411 @@
+<html><head><meta http-equiv="content-type" content="text/html; charset=utf-8"> <link rel=stylesheet href="../../code.css" type="text/css"></head><body><pre><span class='linenumber'>   1</span> <span class="COMM">/*
+<span class='linenumber'>   2</span>  * Copyright 2010 Jive Software
+<span class='linenumber'>   3</span>  * 
+<span class='linenumber'>   4</span>  * Licensed under the Apache License, Version 2.0 (the "License");
+<span class='linenumber'>   5</span>  * you may not use this file except in compliance with the License.
+<span class='linenumber'>   6</span>  * You may obtain a copy of the License at
+<span class='linenumber'>   7</span>  * 
+<span class='linenumber'>   8</span>  *     http://www.apache.org/licenses/LICENSE-2.0
+<span class='linenumber'>   9</span>  * 
+<span class='linenumber'>  10</span>  * Unless required by applicable law or agreed to in writing, software
+<span class='linenumber'>  11</span>  * distributed under the License is distributed on an "AS IS" BASIS,
+<span class='linenumber'>  12</span>  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+<span class='linenumber'>  13</span>  * See the License for the specific language governing permissions and
+<span class='linenumber'>  14</span>  * limitations under the License.
+<span class='linenumber'>  15</span>  */</span><span class="WHIT">
+<span class='linenumber'>  16</span> 
+<span class='linenumber'>  17</span> </span><span class="COMM">/**
+<span class='linenumber'>  18</span>  * Invokes `fun` on each element of the array in turn.
+<span class='linenumber'>  19</span>  *
+<span class='linenumber'>  20</span>  * The first argument given to `fun` is a single array element and the second
+<span class='linenumber'>  21</span>  * argument is the index of that element in the array.
+<span class='linenumber'>  22</span>  *
+<span class='linenumber'>  23</span>  * This definition is compatible with the JavaScript 1.6 definition for
+<span class='linenumber'>  24</span>  * `Array#forEach` in Spidermonkey.
+<span class='linenumber'>  25</span>  *
+<span class='linenumber'>  26</span>  * This implementation comes from:
+<span class='linenumber'>  27</span>  * https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Objects/Array/forEach
+<span class='linenumber'>  28</span>  *
+<span class='linenumber'>  29</span>  * @function
+<span class='linenumber'>  30</span>  * @param   {Function}  fun     function that will be applied to each array
+<span class='linenumber'>  31</span>  * element
+<span class='linenumber'>  32</span>  * @param   {Object}    [thisp] context in which `fun` will be invoked - `this`
+<span class='linenumber'>  33</span>  * in `fun` will refer to `thisp`
+<span class='linenumber'>  34</span>  */</span><span class="WHIT">
+<span class='linenumber'>  35</span> </span><span class="NAME">Array.prototype.forEach</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">Array.prototype.forEach</span><span class="WHIT"> </span><span class="PUNC">||</span><span class="WHIT"> </span><span class="KEYW">function</span><span class="PUNC">(</span><span class="NAME">fun</span><span class="WHIT"> </span><span class="COMM">/*, thisp*/</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='linenumber'>  36</span> </span><span class="WHIT">    </span><span class="KEYW">var</span><span class="WHIT"> </span><span class="NAME">len</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">this.length</span><span class="WHIT"> </span><span class="PUNC">>>></span><span class="WHIT"> </span><span class="NUMB">0</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'>  37</span> </span><span class="WHIT">    </span><span class="KEYW">if</span><span class="WHIT"> </span><span class="PUNC">(</span><span class="KEYW">typeof</span><span class="WHIT"> </span><span class="NAME">fun</span><span class="WHIT"> </span><span class="PUNC">!=</span><span class="WHIT"> </span><span class="STRN">"function"</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='linenumber'>  38</span> </span><span class="WHIT">        </span><span class="KEYW">throw</span><span class="WHIT"> </span><span class="KEYW">new</span><span class="WHIT"> </span><span class="NAME">TypeError</span><span class="PUNC">(</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'>  39</span> </span><span class="WHIT">    </span><span class="PUNC">}</span><span class="WHIT">
+<span class='linenumber'>  40</span> 
+<span class='linenumber'>  41</span> </span><span class="WHIT">    </span><span class="KEYW">var</span><span class="WHIT"> </span><span class="NAME">thisp</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">arguments</span><span class="PUNC">[</span><span class="NUMB">1</span><span class="PUNC">]</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'>  42</span> </span><span class="WHIT">    </span><span class="KEYW">for</span><span class="WHIT"> </span><span class="PUNC">(</span><span class="KEYW">var</span><span class="WHIT"> </span><span class="NAME">i</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NUMB">0</span><span class="PUNC">;</span><span class="WHIT"> </span><span class="NAME">i</span><span class="WHIT"> </span><span class="PUNC">&lt;</span><span class="WHIT"> </span><span class="NAME">len</span><span class="PUNC">;</span><span class="WHIT"> </span><span class="NAME">i</span><span class="PUNC">++</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='linenumber'>  43</span> </span><span class="WHIT">        </span><span class="KEYW">if</span><span class="WHIT"> </span><span class="PUNC">(</span><span class="NAME">i</span><span class="WHIT"> </span><span class="KEYW">in</span><span class="WHIT"> </span><span class="KEYW">this</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='linenumber'>  44</span> </span><span class="WHIT">            </span><span class="NAME">fun.call</span><span class="PUNC">(</span><span class="NAME">thisp</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="KEYW">this</span><span class="PUNC">[</span><span class="NAME">i</span><span class="PUNC">]</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">i</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="KEYW">this</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'>  45</span> </span><span class="WHIT">        </span><span class="PUNC">}</span><span class="WHIT">
+<span class='linenumber'>  46</span> </span><span class="WHIT">    </span><span class="PUNC">}</span><span class="WHIT">
+<span class='linenumber'>  47</span> </span><span class="PUNC">}</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'>  48</span> 
+<span class='linenumber'>  49</span> </span><span class="COMM">/**
+<span class='linenumber'>  50</span>  * Invokes `fun` on each element of the array and returns a new array of the
+<span class='linenumber'>  51</span>  * results of each application.
+<span class='linenumber'>  52</span>  *
+<span class='linenumber'>  53</span>  * The first argument to `fun` is a single array
+<span class='linenumber'>  54</span>  * element and the second argument is the index of that element in the array.
+<span class='linenumber'>  55</span>  *
+<span class='linenumber'>  56</span>  * This definition is compatible with the JavaScript 1.6 definition for
+<span class='linenumber'>  57</span>  * `Array#map` in Spidermonkey and with the definition in the Prototype library.
+<span class='linenumber'>  58</span>  *
+<span class='linenumber'>  59</span>  * This implementation comes from:
+<span class='linenumber'>  60</span>  * https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Array/map
+<span class='linenumber'>  61</span>  *
+<span class='linenumber'>  62</span>  * @function
+<span class='linenumber'>  63</span>  * @param   {Function}  fun     function that will be applied to each array element
+<span class='linenumber'>  64</span>  * @param   {Object}    [thisp] context in which `fun` will be invoked - `this`
+<span class='linenumber'>  65</span>  * in `fun` will refer to `thisp`
+<span class='linenumber'>  66</span>  * @returns {Array} a new array made up of the return values of every invocation of `fun`
+<span class='linenumber'>  67</span>  */</span><span class="WHIT">
+<span class='linenumber'>  68</span> </span><span class="NAME">Array.prototype.map</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">Array.prototype.map</span><span class="WHIT"> </span><span class="PUNC">||</span><span class="WHIT"> </span><span class="KEYW">function</span><span class="PUNC">(</span><span class="NAME">fun</span><span class="WHIT"> </span><span class="COMM">/*, thisp*/</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='linenumber'>  69</span> </span><span class="WHIT">    </span><span class="KEYW">var</span><span class="WHIT"> </span><span class="NAME">len</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">this.length</span><span class="WHIT"> </span><span class="PUNC">>>></span><span class="WHIT"> </span><span class="NUMB">0</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'>  70</span> </span><span class="WHIT">    </span><span class="KEYW">if</span><span class="WHIT"> </span><span class="PUNC">(</span><span class="KEYW">typeof</span><span class="WHIT"> </span><span class="NAME">fun</span><span class="WHIT"> </span><span class="PUNC">!=</span><span class="WHIT"> </span><span class="STRN">"function"</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='linenumber'>  71</span> </span><span class="WHIT">        </span><span class="KEYW">throw</span><span class="WHIT"> </span><span class="KEYW">new</span><span class="WHIT"> </span><span class="NAME">TypeError</span><span class="PUNC">(</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'>  72</span> </span><span class="WHIT">    </span><span class="PUNC">}</span><span class="WHIT">
+<span class='linenumber'>  73</span> 
+<span class='linenumber'>  74</span> </span><span class="WHIT">    </span><span class="KEYW">var</span><span class="WHIT"> </span><span class="NAME">res</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="KEYW">new</span><span class="WHIT"> </span><span class="NAME">Array</span><span class="PUNC">(</span><span class="NAME">len</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'>  75</span> </span><span class="WHIT">    </span><span class="KEYW">var</span><span class="WHIT"> </span><span class="NAME">thisp</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">arguments</span><span class="PUNC">[</span><span class="NUMB">1</span><span class="PUNC">]</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'>  76</span> </span><span class="WHIT">    </span><span class="KEYW">for</span><span class="WHIT"> </span><span class="PUNC">(</span><span class="KEYW">var</span><span class="WHIT"> </span><span class="NAME">i</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NUMB">0</span><span class="PUNC">;</span><span class="WHIT"> </span><span class="NAME">i</span><span class="WHIT"> </span><span class="PUNC">&lt;</span><span class="WHIT"> </span><span class="NAME">len</span><span class="PUNC">;</span><span class="WHIT"> </span><span class="NAME">i</span><span class="PUNC">++</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='linenumber'>  77</span> </span><span class="WHIT">        </span><span class="KEYW">if</span><span class="WHIT"> </span><span class="PUNC">(</span><span class="NAME">i</span><span class="WHIT"> </span><span class="KEYW">in</span><span class="WHIT"> </span><span class="KEYW">this</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='linenumber'>  78</span> </span><span class="WHIT">            </span><span class="NAME">res</span><span class="PUNC">[</span><span class="NAME">i</span><span class="PUNC">]</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">fun.call</span><span class="PUNC">(</span><span class="NAME">thisp</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="KEYW">this</span><span class="PUNC">[</span><span class="NAME">i</span><span class="PUNC">]</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">i</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'>  79</span> </span><span class="WHIT">        </span><span class="PUNC">}</span><span class="WHIT">
+<span class='linenumber'>  80</span> </span><span class="WHIT">    </span><span class="PUNC">}</span><span class="WHIT">
+<span class='linenumber'>  81</span> 
+<span class='linenumber'>  82</span> </span><span class="WHIT">    </span><span class="KEYW">return</span><span class="WHIT"> </span><span class="NAME">res</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'>  83</span> </span><span class="PUNC">}</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'>  84</span> 
+<span class='linenumber'>  85</span> </span><span class="COMM">/**
+<span class='linenumber'>  86</span>  * Applies `fun` to `initial` and the first element of the array, and then to the
+<span class='linenumber'>  87</span>  * result and the second element, and so on.  Returns the result of applying
+<span class='linenumber'>  88</span>  * `fun` to the accumulated value and the last element of the array.
+<span class='linenumber'>  89</span>  *
+<span class='linenumber'>  90</span>  * `fun` is given four arguments:
+<span class='linenumber'>  91</span>  * &lt;ol>
+<span class='linenumber'>  92</span>  * &lt;li>the result of the previous invocation of `fun`, or the initial value on the first invocation&lt;/li>
+<span class='linenumber'>  93</span>  * &lt;li>a single array element&lt;/li>
+<span class='linenumber'>  94</span>  * &lt;li>the index of that element in the array&lt;/li>
+<span class='linenumber'>  95</span>  * &lt;li>the original array&lt;/li>
+<span class='linenumber'>  96</span>  * &lt;/ol>
+<span class='linenumber'>  97</span>  *
+<span class='linenumber'>  98</span>  * The 'reduce' algorithm is also known as 'fold' and 'inject'.
+<span class='linenumber'>  99</span>  *
+<span class='linenumber'> 100</span>  * This definition is *not* compatible with the definitions of `Array#reduce`
+<span class='linenumber'> 101</span>  * or `Array#inject` in the Prototype library.  However it is compatible with
+<span class='linenumber'> 102</span>  * the JavaScript 1.6 definition of `Array#reduce` in Spidermonkey.
+<span class='linenumber'> 103</span>  *
+<span class='linenumber'> 104</span>  * This implementation comes from:
+<span class='linenumber'> 105</span>  * https://developer.mozilla.org/En/Core_JavaScript_1.5_Reference/Global_Objects/Array/Reduce
+<span class='linenumber'> 106</span>  *
+<span class='linenumber'> 107</span>  * @function
+<span class='linenumber'> 108</span>  * @param   {Function}  fun     function that will be applied to each array element
+<span class='linenumber'> 109</span>  * @param   {any}       [initial]   initial value; defaults to the first array element
+<span class='linenumber'> 110</span>  * @returns {any}       the return value from the last invocation of `fun`
+<span class='linenumber'> 111</span>  */</span><span class="WHIT">
+<span class='linenumber'> 112</span> </span><span class="NAME">Array.prototype.reduce</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">Array.prototype.reduce</span><span class="WHIT"> </span><span class="PUNC">||</span><span class="WHIT"> </span><span class="KEYW">function</span><span class="PUNC">(</span><span class="NAME">fun</span><span class="WHIT"> </span><span class="COMM">/*, initial*/</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='linenumber'> 113</span> </span><span class="WHIT">    </span><span class="KEYW">var</span><span class="WHIT"> </span><span class="NAME">len</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">this.length</span><span class="WHIT"> </span><span class="PUNC">>>></span><span class="WHIT"> </span><span class="NUMB">0</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 114</span> </span><span class="WHIT">    </span><span class="KEYW">if</span><span class="WHIT"> </span><span class="PUNC">(</span><span class="KEYW">typeof</span><span class="WHIT"> </span><span class="NAME">fun</span><span class="WHIT"> </span><span class="PUNC">!=</span><span class="WHIT"> </span><span class="STRN">"function"</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='linenumber'> 115</span> </span><span class="WHIT">        </span><span class="KEYW">throw</span><span class="WHIT"> </span><span class="KEYW">new</span><span class="WHIT"> </span><span class="NAME">TypeError</span><span class="PUNC">(</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 116</span> </span><span class="WHIT">    </span><span class="PUNC">}</span><span class="WHIT">
+<span class='linenumber'> 117</span> 
+<span class='linenumber'> 118</span> </span><span class="WHIT">    </span><span class="COMM">// no value to return if no initial value and an empty array</span><span class="WHIT">
+<span class='linenumber'> 119</span> </span><span class="WHIT">    </span><span class="KEYW">if</span><span class="WHIT"> </span><span class="PUNC">(</span><span class="NAME">len</span><span class="WHIT"> </span><span class="PUNC">==</span><span class="WHIT"> </span><span class="NUMB">0</span><span class="WHIT"> </span><span class="PUNC">&&</span><span class="WHIT"> </span><span class="NAME">arguments.length</span><span class="WHIT"> </span><span class="PUNC">==</span><span class="WHIT"> </span><span class="NUMB">1</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='linenumber'> 120</span> </span><span class="WHIT">        </span><span class="KEYW">throw</span><span class="WHIT"> </span><span class="KEYW">new</span><span class="WHIT"> </span><span class="NAME">TypeError</span><span class="PUNC">(</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 121</span> </span><span class="WHIT">    </span><span class="PUNC">}</span><span class="WHIT">
+<span class='linenumber'> 122</span> 
+<span class='linenumber'> 123</span> </span><span class="WHIT">    </span><span class="KEYW">var</span><span class="WHIT"> </span><span class="NAME">i</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NUMB">0</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 124</span> </span><span class="WHIT">    </span><span class="KEYW">if</span><span class="WHIT"> </span><span class="PUNC">(</span><span class="NAME">arguments.length</span><span class="WHIT"> </span><span class="PUNC">>=</span><span class="WHIT"> </span><span class="NUMB">2</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='linenumber'> 125</span> </span><span class="WHIT">        </span><span class="KEYW">var</span><span class="WHIT"> </span><span class="NAME">rv</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">arguments</span><span class="PUNC">[</span><span class="NUMB">1</span><span class="PUNC">]</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 126</span> </span><span class="WHIT">    </span><span class="PUNC">}</span><span class="WHIT"> </span><span class="KEYW">else</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='linenumber'> 127</span> </span><span class="WHIT">        </span><span class="KEYW">do</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='linenumber'> 128</span> </span><span class="WHIT">            </span><span class="KEYW">if</span><span class="WHIT"> </span><span class="PUNC">(</span><span class="NAME">i</span><span class="WHIT"> </span><span class="KEYW">in</span><span class="WHIT"> </span><span class="KEYW">this</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='linenumber'> 129</span> </span><span class="WHIT">                </span><span class="NAME">rv</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="KEYW">this</span><span class="PUNC">[</span><span class="NAME">i</span><span class="PUNC">++</span><span class="PUNC">]</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 130</span> </span><span class="WHIT">                </span><span class="KEYW">break</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 131</span> </span><span class="WHIT">            </span><span class="PUNC">}</span><span class="WHIT">
+<span class='linenumber'> 132</span> 
+<span class='linenumber'> 133</span> </span><span class="WHIT">            </span><span class="COMM">// if array contains no values, no initial value to return</span><span class="WHIT">
+<span class='linenumber'> 134</span> </span><span class="WHIT">            </span><span class="KEYW">if</span><span class="WHIT"> </span><span class="PUNC">(</span><span class="PUNC">++</span><span class="NAME">i</span><span class="WHIT"> </span><span class="PUNC">>=</span><span class="WHIT"> </span><span class="NAME">len</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='linenumber'> 135</span> </span><span class="WHIT">                </span><span class="KEYW">throw</span><span class="WHIT"> </span><span class="KEYW">new</span><span class="WHIT"> </span><span class="NAME">TypeError</span><span class="PUNC">(</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 136</span> </span><span class="WHIT">            </span><span class="PUNC">}</span><span class="WHIT">
+<span class='linenumber'> 137</span> </span><span class="WHIT">        </span><span class="PUNC">}</span><span class="WHIT"> </span><span class="KEYW">while</span><span class="WHIT"> </span><span class="PUNC">(</span><span class="KEYW">true</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 138</span> </span><span class="WHIT">    </span><span class="PUNC">}</span><span class="WHIT">
+<span class='linenumber'> 139</span> 
+<span class='linenumber'> 140</span> </span><span class="WHIT">    </span><span class="KEYW">for</span><span class="WHIT"> </span><span class="PUNC">(</span><span class="PUNC">;</span><span class="WHIT"> </span><span class="NAME">i</span><span class="WHIT"> </span><span class="PUNC">&lt;</span><span class="WHIT"> </span><span class="NAME">len</span><span class="PUNC">;</span><span class="WHIT"> </span><span class="NAME">i</span><span class="PUNC">++</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='linenumber'> 141</span> </span><span class="WHIT">        </span><span class="KEYW">if</span><span class="WHIT"> </span><span class="PUNC">(</span><span class="NAME">i</span><span class="WHIT"> </span><span class="KEYW">in</span><span class="WHIT"> </span><span class="KEYW">this</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='linenumber'> 142</span> </span><span class="WHIT">            </span><span class="NAME">rv</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">fun.call</span><span class="PUNC">(</span><span class="KEYW">null</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">rv</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="KEYW">this</span><span class="PUNC">[</span><span class="NAME">i</span><span class="PUNC">]</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">i</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="KEYW">this</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 143</span> </span><span class="WHIT">        </span><span class="PUNC">}</span><span class="WHIT">
+<span class='linenumber'> 144</span> </span><span class="WHIT">    </span><span class="PUNC">}</span><span class="WHIT">
+<span class='linenumber'> 145</span> 
+<span class='linenumber'> 146</span> </span><span class="WHIT">    </span><span class="KEYW">return</span><span class="WHIT"> </span><span class="NAME">rv</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 147</span> </span><span class="PUNC">}</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 148</span> 
+<span class='linenumber'> 149</span> </span><span class="COMM">/**
+<span class='linenumber'> 150</span>  * Applies `fun` to `initial` and the last element of the array, and then to
+<span class='linenumber'> 151</span>  * the result and the second-to-last element, and so on.  Returns the result of
+<span class='linenumber'> 152</span>  * applying `fun` to the accumulated value and the first element of the array.
+<span class='linenumber'> 153</span>  *
+<span class='linenumber'> 154</span>  * `fun` is given four arguments:
+<span class='linenumber'> 155</span>  * &lt;ol>
+<span class='linenumber'> 156</span>  * &lt;li>the result of the previous invocation of `fun`, or the initial value on the first invocation&lt;/li>
+<span class='linenumber'> 157</span>  * &lt;li>a single array element&lt;/li>
+<span class='linenumber'> 158</span>  * &lt;li>the index of that element in the array&lt;/li>
+<span class='linenumber'> 159</span>  * &lt;li>the original array&lt;/li>
+<span class='linenumber'> 160</span>  * &lt;/ol>
+<span class='linenumber'> 161</span>  *
+<span class='linenumber'> 162</span>  * This method behaves identically to Array#reduce except that it performs a
+<span class='linenumber'> 163</span>  * right-reduce instead of a left-reduce.
+<span class='linenumber'> 164</span>  *
+<span class='linenumber'> 165</span>  * This definition is compatible with the JavaScript 1.6 definition of
+<span class='linenumber'> 166</span>  * `Array#reduceRight` in Spidermonkey.
+<span class='linenumber'> 167</span>  *
+<span class='linenumber'> 168</span>  * This implementation comes from:
+<span class='linenumber'> 169</span>  * https://developer.mozilla.org/En/Core_JavaScript_1.5_Reference/Global_Objects/Array/Reduce
+<span class='linenumber'> 170</span>  *
+<span class='linenumber'> 171</span>  * @function
+<span class='linenumber'> 172</span>  * @param   {Function}  fun     function that will be applied to each array element
+<span class='linenumber'> 173</span>  * @param   {any}       [initial]   initial value; defaults to the last array element
+<span class='linenumber'> 174</span>  * @returns {any}       the return value from the last invocation of `fun`
+<span class='linenumber'> 175</span>  */</span><span class="WHIT">
+<span class='linenumber'> 176</span> </span><span class="NAME">Array.prototype.reduceRight</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="KEYW">function</span><span class="PUNC">(</span><span class="NAME">fun</span><span class="WHIT"> </span><span class="COMM">/*, initial*/</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='linenumber'> 177</span> </span><span class="WHIT">    </span><span class="KEYW">var</span><span class="WHIT"> </span><span class="NAME">len</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">this.length</span><span class="WHIT"> </span><span class="PUNC">>>></span><span class="WHIT"> </span><span class="NUMB">0</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 178</span> </span><span class="WHIT">    </span><span class="KEYW">if</span><span class="WHIT"> </span><span class="PUNC">(</span><span class="KEYW">typeof</span><span class="WHIT"> </span><span class="NAME">fun</span><span class="WHIT"> </span><span class="PUNC">!=</span><span class="WHIT"> </span><span class="STRN">"function"</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='linenumber'> 179</span> </span><span class="WHIT">        </span><span class="KEYW">throw</span><span class="WHIT"> </span><span class="KEYW">new</span><span class="WHIT"> </span><span class="NAME">TypeError</span><span class="PUNC">(</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 180</span> </span><span class="WHIT">    </span><span class="PUNC">}</span><span class="WHIT">
+<span class='linenumber'> 181</span> 
+<span class='linenumber'> 182</span> </span><span class="WHIT">    </span><span class="COMM">// no value to return if no initial value, empty array</span><span class="WHIT">
+<span class='linenumber'> 183</span> </span><span class="WHIT">    </span><span class="KEYW">if</span><span class="WHIT"> </span><span class="PUNC">(</span><span class="NAME">len</span><span class="WHIT"> </span><span class="PUNC">==</span><span class="WHIT"> </span><span class="NUMB">0</span><span class="WHIT"> </span><span class="PUNC">&&</span><span class="WHIT"> </span><span class="NAME">arguments.length</span><span class="WHIT"> </span><span class="PUNC">==</span><span class="WHIT"> </span><span class="NUMB">1</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='linenumber'> 184</span> </span><span class="WHIT">        </span><span class="KEYW">throw</span><span class="WHIT"> </span><span class="KEYW">new</span><span class="WHIT"> </span><span class="NAME">TypeError</span><span class="PUNC">(</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 185</span> </span><span class="WHIT">    </span><span class="PUNC">}</span><span class="WHIT">
+<span class='linenumber'> 186</span> 
+<span class='linenumber'> 187</span> </span><span class="WHIT">    </span><span class="KEYW">var</span><span class="WHIT"> </span><span class="NAME">i</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">len</span><span class="WHIT"> </span><span class="PUNC">-</span><span class="WHIT"> </span><span class="NUMB">1</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 188</span> </span><span class="WHIT">    </span><span class="KEYW">if</span><span class="WHIT"> </span><span class="PUNC">(</span><span class="NAME">arguments.length</span><span class="WHIT"> </span><span class="PUNC">>=</span><span class="WHIT"> </span><span class="NUMB">2</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='linenumber'> 189</span> </span><span class="WHIT">        </span><span class="KEYW">var</span><span class="WHIT"> </span><span class="NAME">rv</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">arguments</span><span class="PUNC">[</span><span class="NUMB">1</span><span class="PUNC">]</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 190</span> </span><span class="WHIT">    </span><span class="PUNC">}</span><span class="WHIT"> </span><span class="KEYW">else</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='linenumber'> 191</span> </span><span class="WHIT">        </span><span class="KEYW">do</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='linenumber'> 192</span> </span><span class="WHIT">            </span><span class="KEYW">if</span><span class="WHIT"> </span><span class="PUNC">(</span><span class="NAME">i</span><span class="WHIT"> </span><span class="KEYW">in</span><span class="WHIT"> </span><span class="KEYW">this</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='linenumber'> 193</span> </span><span class="WHIT">                </span><span class="KEYW">var</span><span class="WHIT"> </span><span class="NAME">rv</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="KEYW">this</span><span class="PUNC">[</span><span class="NAME">i</span><span class="PUNC">--</span><span class="PUNC">]</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 194</span> </span><span class="WHIT">                </span><span class="KEYW">break</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 195</span> </span><span class="WHIT">            </span><span class="PUNC">}</span><span class="WHIT">
+<span class='linenumber'> 196</span> 
+<span class='linenumber'> 197</span> </span><span class="WHIT">            </span><span class="COMM">// if array contains no values, no initial value to return</span><span class="WHIT">
+<span class='linenumber'> 198</span> </span><span class="WHIT">            </span><span class="KEYW">if</span><span class="WHIT"> </span><span class="PUNC">(</span><span class="PUNC">--</span><span class="NAME">i</span><span class="WHIT"> </span><span class="PUNC">&lt;</span><span class="WHIT"> </span><span class="NUMB">0</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='linenumber'> 199</span> </span><span class="WHIT">                </span><span class="KEYW">throw</span><span class="WHIT"> </span><span class="KEYW">new</span><span class="WHIT"> </span><span class="NAME">TypeError</span><span class="PUNC">(</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 200</span> </span><span class="WHIT">            </span><span class="PUNC">}</span><span class="WHIT">
+<span class='linenumber'> 201</span> </span><span class="WHIT">        </span><span class="PUNC">}</span><span class="WHIT"> </span><span class="KEYW">while</span><span class="WHIT"> </span><span class="PUNC">(</span><span class="KEYW">true</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 202</span> </span><span class="WHIT">    </span><span class="PUNC">}</span><span class="WHIT">
+<span class='linenumber'> 203</span> 
+<span class='linenumber'> 204</span> </span><span class="WHIT">    </span><span class="KEYW">for</span><span class="WHIT"> </span><span class="PUNC">(</span><span class="PUNC">;</span><span class="WHIT"> </span><span class="NAME">i</span><span class="WHIT"> </span><span class="PUNC">>=</span><span class="WHIT"> </span><span class="NUMB">0</span><span class="PUNC">;</span><span class="WHIT"> </span><span class="NAME">i</span><span class="PUNC">--</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='linenumber'> 205</span> </span><span class="WHIT">        </span><span class="KEYW">if</span><span class="WHIT"> </span><span class="PUNC">(</span><span class="NAME">i</span><span class="WHIT"> </span><span class="KEYW">in</span><span class="WHIT"> </span><span class="KEYW">this</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='linenumber'> 206</span> </span><span class="WHIT">            </span><span class="NAME">rv</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">fun.call</span><span class="PUNC">(</span><span class="KEYW">null</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">rv</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="KEYW">this</span><span class="PUNC">[</span><span class="NAME">i</span><span class="PUNC">]</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">i</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="KEYW">this</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 207</span> </span><span class="WHIT">        </span><span class="PUNC">}</span><span class="WHIT">
+<span class='linenumber'> 208</span> </span><span class="WHIT">    </span><span class="PUNC">}</span><span class="WHIT">
+<span class='linenumber'> 209</span> 
+<span class='linenumber'> 210</span> </span><span class="WHIT">    </span><span class="KEYW">return</span><span class="WHIT"> </span><span class="NAME">rv</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 211</span> </span><span class="PUNC">}</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 212</span> 
+<span class='linenumber'> 213</span> </span><span class="COMM">/**
+<span class='linenumber'> 214</span>  * Applies `fun` to each element of the array and returns a new array of all
+<span class='linenumber'> 215</span>  * the values for which `fun` returned `true`.
+<span class='linenumber'> 216</span>  *
+<span class='linenumber'> 217</span>  * The first argument given to `fun` is a single array element and the second
+<span class='linenumber'> 218</span>  * argument is the index of that element in the array.
+<span class='linenumber'> 219</span>  *
+<span class='linenumber'> 220</span>  * This definition is compatible with the JavaScript 1.6 definition for
+<span class='linenumber'> 221</span>  * `Array#filter` in Spidermonkey and with the definition in the Prototype library.
+<span class='linenumber'> 222</span>  *
+<span class='linenumber'> 223</span>  * This implementation comes from:
+<span class='linenumber'> 224</span>  * https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Array/filter
+<span class='linenumber'> 225</span>  *
+<span class='linenumber'> 226</span>  * @function
+<span class='linenumber'> 227</span>  * @param   {Function}  fun     predicate function that will be applied to each
+<span class='linenumber'> 228</span>  * array element
+<span class='linenumber'> 229</span>  * @param   {Object}    [thisp] context in which `fun` will be invoked - `this`
+<span class='linenumber'> 230</span>  * in `fun` will refer to `thisp`
+<span class='linenumber'> 231</span>  * @returns {Array} a new array containing only the elements for which `fun` return true
+<span class='linenumber'> 232</span>  */</span><span class="WHIT">
+<span class='linenumber'> 233</span> </span><span class="NAME">Array.prototype.filter</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">Array.prototype.filter</span><span class="WHIT"> </span><span class="PUNC">||</span><span class="WHIT"> </span><span class="KEYW">function</span><span class="PUNC">(</span><span class="NAME">fun</span><span class="WHIT"> </span><span class="COMM">/*, thisp*/</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='linenumber'> 234</span> </span><span class="WHIT">    </span><span class="KEYW">var</span><span class="WHIT"> </span><span class="NAME">len</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">this.length</span><span class="WHIT"> </span><span class="PUNC">>>></span><span class="WHIT"> </span><span class="NUMB">0</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 235</span> </span><span class="WHIT">    </span><span class="KEYW">if</span><span class="WHIT"> </span><span class="PUNC">(</span><span class="KEYW">typeof</span><span class="WHIT"> </span><span class="NAME">fun</span><span class="WHIT"> </span><span class="PUNC">!=</span><span class="WHIT"> </span><span class="STRN">"function"</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='linenumber'> 236</span> </span><span class="WHIT">        </span><span class="KEYW">throw</span><span class="WHIT"> </span><span class="KEYW">new</span><span class="WHIT"> </span><span class="NAME">TypeError</span><span class="PUNC">(</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 237</span> </span><span class="WHIT">    </span><span class="PUNC">}</span><span class="WHIT">
+<span class='linenumber'> 238</span> 
+<span class='linenumber'> 239</span> </span><span class="WHIT">    </span><span class="KEYW">var</span><span class="WHIT"> </span><span class="NAME">res</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="KEYW">new</span><span class="WHIT"> </span><span class="NAME">Array</span><span class="PUNC">(</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 240</span> </span><span class="WHIT">    </span><span class="KEYW">var</span><span class="WHIT"> </span><span class="NAME">thisp</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">arguments</span><span class="PUNC">[</span><span class="NUMB">1</span><span class="PUNC">]</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 241</span> </span><span class="WHIT">    </span><span class="KEYW">for</span><span class="WHIT"> </span><span class="PUNC">(</span><span class="KEYW">var</span><span class="WHIT"> </span><span class="NAME">i</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NUMB">0</span><span class="PUNC">;</span><span class="WHIT"> </span><span class="NAME">i</span><span class="WHIT"> </span><span class="PUNC">&lt;</span><span class="WHIT"> </span><span class="NAME">len</span><span class="PUNC">;</span><span class="WHIT"> </span><span class="NAME">i</span><span class="PUNC">++</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='linenumber'> 242</span> </span><span class="WHIT">        </span><span class="KEYW">if</span><span class="WHIT"> </span><span class="PUNC">(</span><span class="NAME">i</span><span class="WHIT"> </span><span class="KEYW">in</span><span class="WHIT"> </span><span class="KEYW">this</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='linenumber'> 243</span> </span><span class="WHIT">            </span><span class="KEYW">var</span><span class="WHIT"> </span><span class="NAME">val</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="KEYW">this</span><span class="PUNC">[</span><span class="NAME">i</span><span class="PUNC">]</span><span class="PUNC">;</span><span class="WHIT"> </span><span class="COMM">// in case fun mutates this</span><span class="WHIT">
+<span class='linenumber'> 244</span> </span><span class="WHIT">            </span><span class="KEYW">if</span><span class="WHIT"> </span><span class="PUNC">(</span><span class="NAME">fun.call</span><span class="PUNC">(</span><span class="NAME">thisp</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">val</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">i</span><span class="PUNC">)</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='linenumber'> 245</span> </span><span class="WHIT">                </span><span class="NAME">res.push</span><span class="PUNC">(</span><span class="NAME">val</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 246</span> </span><span class="WHIT">            </span><span class="PUNC">}</span><span class="WHIT">
+<span class='linenumber'> 247</span> </span><span class="WHIT">        </span><span class="PUNC">}</span><span class="WHIT">
+<span class='linenumber'> 248</span> </span><span class="WHIT">    </span><span class="PUNC">}</span><span class="WHIT">
+<span class='linenumber'> 249</span> 
+<span class='linenumber'> 250</span> </span><span class="WHIT">    </span><span class="KEYW">return</span><span class="WHIT"> </span><span class="NAME">res</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 251</span> </span><span class="PUNC">}</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 252</span> 
+<span class='linenumber'> 253</span> </span><span class="COMM">/**
+<span class='linenumber'> 254</span>  * Invokes `fun` on each element of the array and returns true if every
+<span class='linenumber'> 255</span>  * invocation of `fun` returns true or returns a truthy value.  Otherwise
+<span class='linenumber'> 256</span>  * returns false.
+<span class='linenumber'> 257</span>  *
+<span class='linenumber'> 258</span>  * The first argument given to `fun` is a single array element and the second
+<span class='linenumber'> 259</span>  * argument is the index of that element in the array.
+<span class='linenumber'> 260</span>  *
+<span class='linenumber'> 261</span>  * This definition is compatible with the JavaScript 1.6 definition for
+<span class='linenumber'> 262</span>  * `Array#every` in Spidermonkey.
+<span class='linenumber'> 263</span>  *
+<span class='linenumber'> 264</span>  * This implementation comes from:
+<span class='linenumber'> 265</span>  * https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Array/every
+<span class='linenumber'> 266</span>  *
+<span class='linenumber'> 267</span>  * @function
+<span class='linenumber'> 268</span>  * @param   {Function}  fun     predicate function that will be applied to each
+<span class='linenumber'> 269</span>  * array element
+<span class='linenumber'> 270</span>  * @param   {Object}    [thisp] context in which `fun` will be invoked - `this`
+<span class='linenumber'> 271</span>  * in `fun` will refer to `thisp`
+<span class='linenumber'> 272</span>  * @returns {Boolean}   true if `fun` returned true for every array element, false otherwise
+<span class='linenumber'> 273</span>  */</span><span class="WHIT">
+<span class='linenumber'> 274</span> </span><span class="NAME">Array.prototype.every</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">Array.prototype.every</span><span class="WHIT"> </span><span class="PUNC">||</span><span class="WHIT"> </span><span class="KEYW">function</span><span class="PUNC">(</span><span class="NAME">fun</span><span class="WHIT"> </span><span class="COMM">/*, thisp*/</span><span class="PUNC">)</span><span class="WHIT">  </span><span class="PUNC">{</span><span class="WHIT">
+<span class='linenumber'> 275</span> </span><span class="WHIT">    </span><span class="KEYW">var</span><span class="WHIT"> </span><span class="NAME">len</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">this.length</span><span class="WHIT"> </span><span class="PUNC">>>></span><span class="WHIT"> </span><span class="NUMB">0</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 276</span> </span><span class="WHIT">    </span><span class="KEYW">if</span><span class="WHIT"> </span><span class="PUNC">(</span><span class="KEYW">typeof</span><span class="WHIT"> </span><span class="NAME">fun</span><span class="WHIT"> </span><span class="PUNC">!=</span><span class="WHIT"> </span><span class="STRN">"function"</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='linenumber'> 277</span> </span><span class="WHIT">        </span><span class="KEYW">throw</span><span class="WHIT"> </span><span class="KEYW">new</span><span class="WHIT"> </span><span class="NAME">TypeError</span><span class="PUNC">(</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 278</span> </span><span class="WHIT">    </span><span class="PUNC">}</span><span class="WHIT">
+<span class='linenumber'> 279</span> 
+<span class='linenumber'> 280</span> </span><span class="WHIT">    </span><span class="KEYW">var</span><span class="WHIT"> </span><span class="NAME">thisp</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">arguments</span><span class="PUNC">[</span><span class="NUMB">1</span><span class="PUNC">]</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 281</span> </span><span class="WHIT">    </span><span class="KEYW">for</span><span class="WHIT"> </span><span class="PUNC">(</span><span class="KEYW">var</span><span class="WHIT"> </span><span class="NAME">i</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NUMB">0</span><span class="PUNC">;</span><span class="WHIT"> </span><span class="NAME">i</span><span class="WHIT"> </span><span class="PUNC">&lt;</span><span class="WHIT"> </span><span class="NAME">len</span><span class="PUNC">;</span><span class="WHIT"> </span><span class="NAME">i</span><span class="PUNC">++</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='linenumber'> 282</span> </span><span class="WHIT">        </span><span class="KEYW">if</span><span class="WHIT"> </span><span class="PUNC">(</span><span class="NAME">i</span><span class="WHIT"> </span><span class="KEYW">in</span><span class="WHIT"> </span><span class="KEYW">this</span><span class="WHIT"> </span><span class="PUNC">&&</span><span class="WHIT">
+<span class='linenumber'> 283</span> </span><span class="WHIT">            </span><span class="PUNC">!</span><span class="NAME">fun.call</span><span class="PUNC">(</span><span class="NAME">thisp</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="KEYW">this</span><span class="PUNC">[</span><span class="NAME">i</span><span class="PUNC">]</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">i</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="KEYW">this</span><span class="PUNC">)</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='linenumber'> 284</span> </span><span class="WHIT">            </span><span class="KEYW">return</span><span class="WHIT"> </span><span class="KEYW">false</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 285</span> </span><span class="WHIT">        </span><span class="PUNC">}</span><span class="WHIT">
+<span class='linenumber'> 286</span> </span><span class="WHIT">    </span><span class="PUNC">}</span><span class="WHIT">
+<span class='linenumber'> 287</span> 
+<span class='linenumber'> 288</span> </span><span class="WHIT">    </span><span class="KEYW">return</span><span class="WHIT"> </span><span class="KEYW">true</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 289</span> </span><span class="PUNC">}</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 290</span> 
+<span class='linenumber'> 291</span> </span><span class="COMM">/**
+<span class='linenumber'> 292</span>  * Invokes `fun` on each element of the array and returns true if at least one
+<span class='linenumber'> 293</span>  * invocation of `fun` returns true or returns a truthy value.  Otherwise
+<span class='linenumber'> 294</span>  * returns false.
+<span class='linenumber'> 295</span>  *
+<span class='linenumber'> 296</span>  * The first argument given to `fun` is a single array element and the second
+<span class='linenumber'> 297</span>  * argument is the index of that element in the array.
+<span class='linenumber'> 298</span>  *
+<span class='linenumber'> 299</span>  * This definition is compatible with the JavaScript 1.6 definition for
+<span class='linenumber'> 300</span>  * `Array#every` in Spidermonkey.
+<span class='linenumber'> 301</span>  *
+<span class='linenumber'> 302</span>  * This implementation comes from:
+<span class='linenumber'> 303</span>  * https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Array/some
+<span class='linenumber'> 304</span>  *
+<span class='linenumber'> 305</span>  * @function
+<span class='linenumber'> 306</span>  * @param   {Function}  fun     predicate function that will be applied to each
+<span class='linenumber'> 307</span>  * array element
+<span class='linenumber'> 308</span>  * @param   {Object}    [thisp] context in which `fun` will be invoked - `this`
+<span class='linenumber'> 309</span>  * in `fun` will refer to `thisp`
+<span class='linenumber'> 310</span>  * @returns {Boolean}   true if `fun` returned true for some array element, false otherwise
+<span class='linenumber'> 311</span>  */</span><span class="WHIT">
+<span class='linenumber'> 312</span> </span><span class="NAME">Array.prototype.some</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">Array.prototype.some</span><span class="WHIT"> </span><span class="PUNC">||</span><span class="WHIT"> </span><span class="KEYW">function</span><span class="PUNC">(</span><span class="NAME">fun</span><span class="WHIT"> </span><span class="COMM">/*, thisp*/</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='linenumber'> 313</span> </span><span class="WHIT">    </span><span class="KEYW">var</span><span class="WHIT"> </span><span class="NAME">i</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NUMB">0</span><span class="PUNC">,</span><span class="WHIT">
+<span class='linenumber'> 314</span> </span><span class="WHIT">        </span><span class="NAME">len</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">this.length</span><span class="WHIT"> </span><span class="PUNC">>>></span><span class="WHIT"> </span><span class="NUMB">0</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 315</span> 
+<span class='linenumber'> 316</span> </span><span class="WHIT">    </span><span class="KEYW">if</span><span class="WHIT"> </span><span class="PUNC">(</span><span class="KEYW">typeof</span><span class="WHIT"> </span><span class="NAME">fun</span><span class="WHIT"> </span><span class="PUNC">!=</span><span class="WHIT"> </span><span class="STRN">"function"</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='linenumber'> 317</span> </span><span class="WHIT">        </span><span class="KEYW">throw</span><span class="WHIT"> </span><span class="KEYW">new</span><span class="WHIT"> </span><span class="NAME">TypeError</span><span class="PUNC">(</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 318</span> </span><span class="WHIT">    </span><span class="PUNC">}</span><span class="WHIT">
+<span class='linenumber'> 319</span> 
+<span class='linenumber'> 320</span> </span><span class="WHIT">    </span><span class="KEYW">var</span><span class="WHIT"> </span><span class="NAME">thisp</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">arguments</span><span class="PUNC">[</span><span class="NUMB">1</span><span class="PUNC">]</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 321</span> </span><span class="WHIT">    </span><span class="KEYW">for</span><span class="WHIT"> </span><span class="PUNC">(</span><span class="PUNC">;</span><span class="WHIT"> </span><span class="NAME">i</span><span class="WHIT"> </span><span class="PUNC">&lt;</span><span class="WHIT"> </span><span class="NAME">len</span><span class="PUNC">;</span><span class="WHIT"> </span><span class="NAME">i</span><span class="PUNC">++</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='linenumber'> 322</span> </span><span class="WHIT">        </span><span class="KEYW">if</span><span class="WHIT"> </span><span class="PUNC">(</span><span class="NAME">i</span><span class="WHIT"> </span><span class="KEYW">in</span><span class="WHIT"> </span><span class="KEYW">this</span><span class="WHIT"> </span><span class="PUNC">&&</span><span class="WHIT">
+<span class='linenumber'> 323</span> </span><span class="WHIT">            </span><span class="NAME">fun.call</span><span class="PUNC">(</span><span class="NAME">thisp</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="KEYW">this</span><span class="PUNC">[</span><span class="NAME">i</span><span class="PUNC">]</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">i</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="KEYW">this</span><span class="PUNC">)</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='linenumber'> 324</span> </span><span class="WHIT">            </span><span class="KEYW">return</span><span class="WHIT"> </span><span class="KEYW">true</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 325</span> </span><span class="WHIT">        </span><span class="PUNC">}</span><span class="WHIT">
+<span class='linenumber'> 326</span> </span><span class="WHIT">    </span><span class="PUNC">}</span><span class="WHIT">
+<span class='linenumber'> 327</span> 
+<span class='linenumber'> 328</span> </span><span class="WHIT">    </span><span class="KEYW">return</span><span class="WHIT"> </span><span class="KEYW">false</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 329</span> </span><span class="PUNC">}</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 330</span> 
+<span class='linenumber'> 331</span> </span><span class="COMM">/**
+<span class='linenumber'> 332</span>  * Compares elements in the array with `searchElement` using strict equality
+<span class='linenumber'> 333</span>  * (===).  If any element matches `searchElement` the lowest matching index is
+<span class='linenumber'> 334</span>  * returned.  Otherwise -1 is returned.
+<span class='linenumber'> 335</span>  *
+<span class='linenumber'> 336</span>  * You can optionally restrict the search by passing a `fromIndex` argument.
+<span class='linenumber'> 337</span>  *
+<span class='linenumber'> 338</span>  * This definition is compatible with the JavaScript 1.6 definition for
+<span class='linenumber'> 339</span>  * `Array#indexOf` in Spidermonkey.
+<span class='linenumber'> 340</span>  *
+<span class='linenumber'> 341</span>  * This implementation comes from:
+<span class='linenumber'> 342</span>  * https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Array/indexOf
+<span class='linenumber'> 343</span>  *
+<span class='linenumber'> 344</span>  * @function
+<span class='linenumber'> 345</span>  * @param   {any}       searchElement   element to search for within the array
+<span class='linenumber'> 346</span>  * @param   {number}    [fromIndex]     index at which to begin search
+<span class='linenumber'> 347</span>  * @returns {number}    the index of the matching element if one is found, -1 otherwise
+<span class='linenumber'> 348</span>  */</span><span class="WHIT">
+<span class='linenumber'> 349</span> </span><span class="NAME">Array.prototype.indexOf</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">Array.prototype.indexOf</span><span class="WHIT"> </span><span class="PUNC">||</span><span class="WHIT"> </span><span class="KEYW">function</span><span class="PUNC">(</span><span class="NAME">elt</span><span class="WHIT"> </span><span class="COMM">/*, from*/</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='linenumber'> 350</span> </span><span class="WHIT">    </span><span class="KEYW">var</span><span class="WHIT"> </span><span class="NAME">len</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">this.length</span><span class="WHIT"> </span><span class="PUNC">>>></span><span class="WHIT"> </span><span class="NUMB">0</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 351</span> 
+<span class='linenumber'> 352</span> </span><span class="WHIT">    </span><span class="KEYW">var</span><span class="WHIT"> </span><span class="NAME">from</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">Number</span><span class="PUNC">(</span><span class="NAME">arguments</span><span class="PUNC">[</span><span class="NUMB">1</span><span class="PUNC">]</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">||</span><span class="WHIT"> </span><span class="NUMB">0</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 353</span> </span><span class="WHIT">    </span><span class="NAME">from</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="PUNC">(</span><span class="NAME">from</span><span class="WHIT"> </span><span class="PUNC">&lt;</span><span class="WHIT"> </span><span class="NUMB">0</span><span class="PUNC">)</span><span class="WHIT">
+<span class='linenumber'> 354</span> </span><span class="WHIT">        </span><span class="PUNC">?</span><span class="WHIT"> </span><span class="NAME">Math.ceil</span><span class="PUNC">(</span><span class="NAME">from</span><span class="PUNC">)</span><span class="WHIT">
+<span class='linenumber'> 355</span> </span><span class="WHIT">        </span><span class="PUNC">:</span><span class="WHIT"> </span><span class="NAME">Math.floor</span><span class="PUNC">(</span><span class="NAME">from</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 356</span> </span><span class="WHIT">    </span><span class="KEYW">if</span><span class="WHIT"> </span><span class="PUNC">(</span><span class="NAME">from</span><span class="WHIT"> </span><span class="PUNC">&lt;</span><span class="WHIT"> </span><span class="NUMB">0</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='linenumber'> 357</span> </span><span class="WHIT">        </span><span class="NAME">from</span><span class="WHIT"> </span><span class="PUNC">+</span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">len</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 358</span> </span><span class="WHIT">    </span><span class="PUNC">}</span><span class="WHIT">
+<span class='linenumber'> 359</span> 
+<span class='linenumber'> 360</span> </span><span class="WHIT">    </span><span class="KEYW">for</span><span class="WHIT"> </span><span class="PUNC">(</span><span class="PUNC">;</span><span class="WHIT"> </span><span class="NAME">from</span><span class="WHIT"> </span><span class="PUNC">&lt;</span><span class="WHIT"> </span><span class="NAME">len</span><span class="PUNC">;</span><span class="WHIT"> </span><span class="NAME">from</span><span class="PUNC">++</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='linenumber'> 361</span> </span><span class="WHIT">        </span><span class="KEYW">if</span><span class="WHIT"> </span><span class="PUNC">(</span><span class="NAME">from</span><span class="WHIT"> </span><span class="KEYW">in</span><span class="WHIT"> </span><span class="KEYW">this</span><span class="WHIT"> </span><span class="PUNC">&&</span><span class="WHIT">
+<span class='linenumber'> 362</span> </span><span class="WHIT">            </span><span class="KEYW">this</span><span class="PUNC">[</span><span class="NAME">from</span><span class="PUNC">]</span><span class="WHIT"> </span><span class="PUNC">===</span><span class="WHIT"> </span><span class="NAME">elt</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='linenumber'> 363</span> </span><span class="WHIT">            </span><span class="KEYW">return</span><span class="WHIT"> </span><span class="NAME">from</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 364</span> </span><span class="WHIT">        </span><span class="PUNC">}</span><span class="WHIT">
+<span class='linenumber'> 365</span> </span><span class="WHIT">    </span><span class="PUNC">}</span><span class="WHIT">
+<span class='linenumber'> 366</span> </span><span class="WHIT">    </span><span class="KEYW">return</span><span class="WHIT"> </span><span class="PUNC">-</span><span class="NUMB">1</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 367</span> </span><span class="PUNC">}</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 368</span> 
+<span class='linenumber'> 369</span> </span><span class="COMM">/**
+<span class='linenumber'> 370</span>  * Compares elements in the array with `searchElement` using strict equality
+<span class='linenumber'> 371</span>  * (===).  If any element matches `searchElement` the highest matching index is
+<span class='linenumber'> 372</span>  * returned.  Otherwise -1 is returned.
+<span class='linenumber'> 373</span>  *
+<span class='linenumber'> 374</span>  * You can optionally restrict the search by passing a `fromIndex` argument.
+<span class='linenumber'> 375</span>  *
+<span class='linenumber'> 376</span>  * This definition is compatible with the JavaScript 1.6 definition for
+<span class='linenumber'> 377</span>  * `Array#indexOf` in Spidermonkey.
+<span class='linenumber'> 378</span>  *
+<span class='linenumber'> 379</span>  * This implementation comes from:
+<span class='linenumber'> 380</span>  * https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Array/indexOf
+<span class='linenumber'> 381</span>  *
+<span class='linenumber'> 382</span>  * @function
+<span class='linenumber'> 383</span>  * @param   {any}       searchElement   element to search for within the array
+<span class='linenumber'> 384</span>  * @param   {number}    [fromIndex]     index at which to begin search
+<span class='linenumber'> 385</span>  * @returns {number}    the index of the matching element if one is found, -1 otherwise
+<span class='linenumber'> 386</span>  */</span><span class="WHIT">
+<span class='linenumber'> 387</span> </span><span class="NAME">Array.prototype.lastIndexOf</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">Array.prototype.lastIndexOf</span><span class="WHIT"> </span><span class="PUNC">||</span><span class="WHIT"> </span><span class="KEYW">function</span><span class="PUNC">(</span><span class="NAME">elt</span><span class="WHIT"> </span><span class="COMM">/*, from*/</span><span class="PUNC">)</span><span class="WHIT">  </span><span class="PUNC">{</span><span class="WHIT">
+<span class='linenumber'> 388</span> </span><span class="WHIT">    </span><span class="KEYW">var</span><span class="WHIT"> </span><span class="NAME">len</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">this.length</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 389</span> 
+<span class='linenumber'> 390</span> </span><span class="WHIT">    </span><span class="KEYW">var</span><span class="WHIT"> </span><span class="NAME">from</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">Number</span><span class="PUNC">(</span><span class="NAME">arguments</span><span class="PUNC">[</span><span class="NUMB">1</span><span class="PUNC">]</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 391</span> </span><span class="WHIT">    </span><span class="KEYW">if</span><span class="WHIT"> </span><span class="PUNC">(</span><span class="NAME">isNaN</span><span class="PUNC">(</span><span class="NAME">from</span><span class="PUNC">)</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='linenumber'> 392</span> </span><span class="WHIT">        </span><span class="NAME">from</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">len</span><span class="WHIT"> </span><span class="PUNC">-</span><span class="WHIT"> </span><span class="NUMB">1</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 393</span> </span><span class="WHIT">    </span><span class="PUNC">}</span><span class="WHIT"> </span><span class="KEYW">else</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='linenumber'> 394</span> </span><span class="WHIT">        </span><span class="NAME">from</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="PUNC">(</span><span class="NAME">from</span><span class="WHIT"> </span><span class="PUNC">&lt;</span><span class="WHIT"> </span><span class="NUMB">0</span><span class="PUNC">)</span><span class="WHIT">
+<span class='linenumber'> 395</span> </span><span class="WHIT">            </span><span class="PUNC">?</span><span class="WHIT"> </span><span class="NAME">Math.ceil</span><span class="PUNC">(</span><span class="NAME">from</span><span class="PUNC">)</span><span class="WHIT">
+<span class='linenumber'> 396</span> </span><span class="WHIT">            </span><span class="PUNC">:</span><span class="WHIT"> </span><span class="NAME">Math.floor</span><span class="PUNC">(</span><span class="NAME">from</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 397</span> </span><span class="WHIT">        </span><span class="KEYW">if</span><span class="WHIT"> </span><span class="PUNC">(</span><span class="NAME">from</span><span class="WHIT"> </span><span class="PUNC">&lt;</span><span class="WHIT"> </span><span class="NUMB">0</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='linenumber'> 398</span> </span><span class="WHIT">            </span><span class="NAME">from</span><span class="WHIT"> </span><span class="PUNC">+</span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">len</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 399</span> </span><span class="WHIT">        </span><span class="PUNC">}</span><span class="WHIT"> </span><span class="KEYW">else</span><span class="WHIT"> </span><span class="KEYW">if</span><span class="WHIT"> </span><span class="PUNC">(</span><span class="NAME">from</span><span class="WHIT"> </span><span class="PUNC">>=</span><span class="WHIT"> </span><span class="NAME">len</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='linenumber'> 400</span> </span><span class="WHIT">            </span><span class="NAME">from</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">len</span><span class="WHIT"> </span><span class="PUNC">-</span><span class="WHIT"> </span><span class="NUMB">1</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 401</span> </span><span class="WHIT">        </span><span class="PUNC">}</span><span class="WHIT">
+<span class='linenumber'> 402</span> </span><span class="WHIT">    </span><span class="PUNC">}</span><span class="WHIT">
+<span class='linenumber'> 403</span> 
+<span class='linenumber'> 404</span> </span><span class="KEYW">for</span><span class="WHIT"> </span><span class="PUNC">(</span><span class="PUNC">;</span><span class="WHIT"> </span><span class="NAME">from</span><span class="WHIT"> </span><span class="PUNC">></span><span class="WHIT"> </span><span class="PUNC">-</span><span class="NUMB">1</span><span class="PUNC">;</span><span class="WHIT"> </span><span class="NAME">from</span><span class="PUNC">--</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='linenumber'> 405</span> </span><span class="WHIT">    </span><span class="KEYW">if</span><span class="WHIT"> </span><span class="PUNC">(</span><span class="NAME">from</span><span class="WHIT"> </span><span class="KEYW">in</span><span class="WHIT"> </span><span class="KEYW">this</span><span class="WHIT"> </span><span class="PUNC">&&</span><span class="WHIT">
+<span class='linenumber'> 406</span> </span><span class="WHIT">        </span><span class="KEYW">this</span><span class="PUNC">[</span><span class="NAME">from</span><span class="PUNC">]</span><span class="WHIT"> </span><span class="PUNC">===</span><span class="WHIT"> </span><span class="NAME">elt</span><span class="PUNC">)</span><span class="WHIT">
+<span class='linenumber'> 407</span> </span><span class="WHIT">        </span><span class="KEYW">return</span><span class="WHIT"> </span><span class="NAME">from</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 408</span> </span><span class="WHIT">    </span><span class="PUNC">}</span><span class="WHIT">
+<span class='linenumber'> 409</span> </span><span class="WHIT">    </span><span class="KEYW">return</span><span class="WHIT"> </span><span class="PUNC">-</span><span class="NUMB">1</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 410</span> </span><span class="PUNC">}</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 411</span> </span></pre></body></html>

@@ -14,12 +14,9 @@
  * limitations under the License.
  */
 
+/*extern jive */
+
 /**
- * jive.conc.synchronize(obj) -> jive.Promise
- * - obj (Object or Array): object referencing multiple promises
- * 
- * requires jive.conc.Promise, jive.conc.observable
- *
  * A promise - an instance of jive.conc.Promise - is an object that represents
  * the eventual outcome of an asynchronous operation.  This function takes an
  * object that has promises as property values and returns a new promise.  Once
@@ -29,14 +26,14 @@
  *
  * If any of the promises on the given object emits an error the same error
  * will be re-emitted by `synchronize()`.
+ *
+ * @function
+ * @param   {Object|Array}  obj object referencing multiple promises
+ * @returns {jive.conc.Promise} returns a promise that is fulfilled when all of the referenced promises have been fulfilled
+ * @requires jive.conc.observable
+ * @requires jive.conc.Promise
  */
-
-/*extern jive */
-
-jive = this.jive || {};
-jive.conc = jive.conc || {};
-
-(function() {
+jive.conc.synchronize = (function() {
     function isArray(o) {
         return Object.prototype.toString.call(o) === "[object Array]";
     }
@@ -45,7 +42,7 @@ jive.conc = jive.conc || {};
         return prop.addCallback && prop.addErrback && prop.addCancelback;
     }
 
-    jive.conc.synchronize = function(obj) {
+    return function(obj) {
         var outcome, k,
             toBeFulfilled = 0,
             promise = new jive.conc.Promise();

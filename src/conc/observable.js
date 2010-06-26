@@ -14,11 +14,13 @@
  * limitations under the License.
  */
 
+/*jslint undef:true laxbreak:true browser:true */
+/*global jive */
+
+jive = this.jive || {};
+jive.conc = jive.conc || {};
+
 /**
- * jive.conc.observable
- *
- * no dependencies
- *
  * This is a mix in that can add methods to any object for emitting events and
  * for registering event listeners.  This can be useful, for example, to create
  * view classes that emit events that a controller class can listen to and
@@ -50,25 +52,21 @@
  * Event listeners will be invoked in the context of the observable object.  So
  * in the body of an event listener `this` will refer to the object that
  * emitted the event.
+ *
+ * @class
+ * @param   {Object}    klass   object to mix observable methods into
  */
-
-/*jslint undef:true laxbreak:true browser:true */
-/*global jive */
-
-jive = this.jive || {};
-jive.conc = jive.conc || {};
-
 jive.conc.observable = function(klass) {
-
     /**
-     * listeners(type) -> [Function]
-     * - type (String): listeners for this type of event will be returned
-     *
-     * Returns an arry of event listeners (functions) registered on the
+     * Returns an array of event listeners (functions) registered on the
      * receiver for the given type of event.  Returns an empty array if no
      * listeners are registered.
+     *
+     * @methodOf jive.conc.observable#
+     * @param {string}  type    listeners for this type of event will be returned
+     * @returns {Function[]}    array of event listeners
      */
-    function listeners(type) {
+    klass.listeners = function(type) {
         if (!this._events) {
             this._events = {};
         }
@@ -79,17 +77,16 @@ jive.conc.observable = function(klass) {
     }
 
     /**
-     * addListener(event, listener) -> receiver
-     * - event (String): event to listen for
-     * - listener (Function): function to invoke when the given event occurs
-     *
      * Registers an event listener on the receiver for the given type of event.
      * When that event is emitted by the receiver `listener` will be invoked
      * asynchronously with any event parameters as arguments.
      *
-     * Returns the receiver so that this method can be cascaded.
+     * @methodOf jive.conc.observable#
+     * @param   {string}    type    type of event to listen for
+     * @param   {Function}  listener    function to invoke when the given event occurs
+     * @returns {jive.conc.observable}  returns the receiver so that this method can be cascaded
      */
-    function addListener(event, listener) {
+    klass.addListener = function(event, listener) {
         // Emit a 'newListener' event.  It is important to emit this event
         // before adding the listener to prevent a 'newListener' listener from
         // being called as soon as it is added.
@@ -99,16 +96,16 @@ jive.conc.observable = function(klass) {
     }
 
     /**
-     * removeListener(event, listener) -> receiver
-     * - event (String): event to unregister from
-     * - listener (Function): specific listener to unregister
-     *
      * Un-registers the given listener from the receiver as a listener for the
-     * given type of event.
+     * given type of event.  If no `listener` argument is given removes all
+     * listeners for the given event type.
      *
-     * Returns the receiver so that this method can be cascaded.
+     * @methodOf jive.conc.observable#
+     * @param   {string}    type    type of event to stop listening for
+     * @param   {Function}  [listener]  specific listener to remove
+     * @returns {jive.conc.observable}  returns the receiver so that this method can be cascaded
      */
-    function removeListener(event, listener) {
+    klass.removeListener = function(event, listener) {
         var listeners = this.listeners(event);
         for (var i = 0; i < listeners.length; i += 1) {
             if (listeners[i] === listener || typeof listener == 'undefined') {
@@ -126,18 +123,17 @@ jive.conc.observable = function(klass) {
     };
 
     /**
-     * emit(event[, eventParam, ...]) -> receiver
-     * - event (String): event to emit
-     * - eventParam (*): zero or more event parameters to pass as arguments to event listeners
-     *
      * Emits an event, thus causing any event listeners registered on the
      * receiver for that event to be invoked asynchronously.  Any event
      * parameters that are given will be passed as arguments to event
      * listeners.
      *
-     * Returns the receiver so that this method can be cascaded.
+     * @methodOf jive.conc.observable#
+     * @param   {string}    type    type of event to emit
+     * @param   {...any}    [eventParams]   zero or more event parameters to pass as arguments to event listeners
+     * @returns {jive.conc.observable}  returns the receiver so that this method can be cascaded
      */
-    function emit(event/*, eventParams */) {
+    klass.emit = function(event/*, eventParams */) {
         var eventParams = Array.prototype.slice.call(arguments, 1),
             listeners = this.listeners(event),
             that = this;
@@ -161,17 +157,17 @@ jive.conc.observable = function(klass) {
     }
 
     /**
-     * emitP(event[, eventParam, ...]) -> jive.conc.Promise
-     * - event (String): event to emit
-     * - eventParam (*): zero or more event parameters to pass as arguments to event listeners
-     *
      * Behaves the same as `emit()` except that this function creates a promise
-     * which is passed with `event` as an additional event parameter and that
+     * which is passed with the event as an additional event parameter and that
      * is returned by `eventP()`.
      *
-     * Requires jive.conc.Promise.
+     * @methodOf jive.conc.observable#
+     * @param   {string}    type    type of event to emit
+     * @param   {...any}    [eventParams]   zero or more event parameters to pass as arguments to event listeners
+     * @returns {jive.conc.Promise} returns a promise that is also passed with event parameters
+     * @requires jive.conc.Promise
      */
-    function emitP(event/*, eventParams */) {
+    klass.emitP = function(event/*, eventParams */) {
         var args = Array.prototype.slice.call(arguments)
           , promise = new jive.conc.Promise();
         this.emit.apply(this, args.concat(promise));
@@ -179,22 +175,23 @@ jive.conc.observable = function(klass) {
     }
 
     /**
-     * proxyListener(emitter, event[, renamedEvent][, listener]) -> receiver
-     * - emitter (Object): object to listen to
-     * - event (String): event type to listen for
-     * - renamedEvent (String): optional new name to use when re-emitting events
-     * - listener (Function): optional callback function to register as an event listener
-     *
      * Listens for an event from emitter and automatically re-emits the same
-     * event.  If `renamedEvent` is given the event will be re-emitted with
+     * event.  If `newType` is given the event will be re-emitted with
      * that name instead of the original event name.  If `listener` is given it
      * will be registered as an event handler in addition to re-emitting
      * events.
      *
      * Listeners registered for the re-emitted event will run in the context of
      * the receiver of proxyListener, not the original emitter of the event.
+     *
+     * @methodOf jive.conc.observable#
+     * @param   {jive.conc.observable}  emitter event emitting object to proxy events from
+     * @param   {string}    type    type of event to listen for
+     * @param   {string}    [newType]   type of the event that will be re-emitted
+     * @param   {Function}  [listener]  callback function to register as an event listener
+     * @returns {jive.conc.observable}  returns the receiver so that this method can be cascaded
      */
-    function proxyListener(obj, event, proxiedEvent, listener) {
+    klass.proxyListener = function(obj, event, proxiedEvent, listener) {
         var that = this;
 
         if (typeof proxiedEvent == 'function') {
@@ -215,11 +212,4 @@ jive.conc.observable = function(klass) {
 
         return this;
     }
-
-    klass.listeners      = listeners;
-    klass.addListener    = addListener;
-    klass.removeListener = removeListener;
-    klass.emit           = emit;
-    klass.emitP          = emitP;
-    klass.proxyListener  = proxyListener;
 };

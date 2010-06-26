@@ -1,0 +1,247 @@
+<html><head><meta http-equiv="content-type" content="text/html; charset=utf-8"> <link rel=stylesheet href="../../code.css" type="text/css"></head><body><pre><span class='linenumber'>   1</span> <span class="COMM">/*
+<span class='linenumber'>   2</span>  * Copyright 2010 Jive Software
+<span class='linenumber'>   3</span>  * 
+<span class='linenumber'>   4</span>  * Licensed under the Apache License, Version 2.0 (the "License");
+<span class='linenumber'>   5</span>  * you may not use this file except in compliance with the License.
+<span class='linenumber'>   6</span>  * You may obtain a copy of the License at
+<span class='linenumber'>   7</span>  * 
+<span class='linenumber'>   8</span>  *     http://www.apache.org/licenses/LICENSE-2.0
+<span class='linenumber'>   9</span>  * 
+<span class='linenumber'>  10</span>  * Unless required by applicable law or agreed to in writing, software
+<span class='linenumber'>  11</span>  * distributed under the License is distributed on an "AS IS" BASIS,
+<span class='linenumber'>  12</span>  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+<span class='linenumber'>  13</span>  * See the License for the specific language governing permissions and
+<span class='linenumber'>  14</span>  * limitations under the License.
+<span class='linenumber'>  15</span>  */</span><span class="WHIT">
+<span class='linenumber'>  16</span> 
+<span class='linenumber'>  17</span> </span><span class="COMM">/*jslint undef:true browser:true */</span><span class="WHIT">
+<span class='linenumber'>  18</span> </span><span class="COMM">/*extern jive */</span><span class="WHIT">
+<span class='linenumber'>  19</span> 
+<span class='linenumber'>  20</span> </span><span class="COMM">/**
+<span class='linenumber'>  21</span>  * Promises are objects that are used to reference the outcomes of asynchronous
+<span class='linenumber'>  22</span>  * operations.  This implementation is based on the Promise API formerly
+<span class='linenumber'>  23</span>  * implemented in Node.js &lt;http://nodejs.org/>.
+<span class='linenumber'>  24</span>  *
+<span class='linenumber'>  25</span>  * For example, consider this function:
+<span class='linenumber'>  26</span>  *
+<span class='linenumber'>  27</span>  *     function getFriends(userID) {
+<span class='linenumber'>  28</span>  *         var url = "/users/"+ userID +"/friends.json";
+<span class='linenumber'>  29</span>  *         $.getJSON(url);
+<span class='linenumber'>  30</span>  *         // what to return??
+<span class='linenumber'>  31</span>  *     }
+<span class='linenumber'>  32</span>  *
+<span class='linenumber'>  33</span>  * There is no way to give the result of that REST call as a return value of
+<span class='linenumber'>  34</span>  * `getFriends()` because `getJSON()` is an asynchronous operation.  One way
+<span class='linenumber'>  35</span>  * around this is to allow the caller to provide a callback that can be invoked
+<span class='linenumber'>  36</span>  * when the JSON response is ready:
+<span class='linenumber'>  37</span>  *
+<span class='linenumber'>  38</span>  *     function getFriends(userID, callback) {
+<span class='linenumber'>  39</span>  *         var url = "/users/"+ userID +"/friends.json";
+<span class='linenumber'>  40</span>  *         $.getJSON(url, function(json) {
+<span class='linenumber'>  41</span>  *             callback(json);
+<span class='linenumber'>  42</span>  *         });
+<span class='linenumber'>  43</span>  *     }
+<span class='linenumber'>  44</span>  *
+<span class='linenumber'>  45</span>  * That approach works nicely.  But if you want to do something more advanced
+<span class='linenumber'>  46</span>  * like to provide separate callbacks for successes and errors you have to add
+<span class='linenumber'>  47</span>  * yet another argument.
+<span class='linenumber'>  48</span>  *
+<span class='linenumber'>  49</span>  * Promises abstract the pattern of passing data asynchronously.
+<span class='linenumber'>  50</span>  * `jive.conc.Promise` mixes in `jive.conc.observable` and can emit three
+<span class='linenumber'>  51</span>  * events: 'succes', 'error', and 'cancel'.  A function that performs an
+<span class='linenumber'>  52</span>  * asynchronous operation can a return a promise object which a caller can
+<span class='linenumber'>  53</span>  * listen to for success or error events.  `Promise` also adds the convenience
+<span class='linenumber'>  54</span>  * methods `addCallback()` and `addErrback()` to make listening to those events
+<span class='linenumber'>  55</span>  * as simple as possible.
+<span class='linenumber'>  56</span>  *
+<span class='linenumber'>  57</span>  * In the `getFriends()` example you would use a promise like this:
+<span class='linenumber'>  58</span>  *
+<span class='linenumber'>  59</span>  *     function getFriends(userID) {
+<span class='linenumber'>  60</span>  *         var url = "/users/"+ userID +"/friends.json",
+<span class='linenumber'>  61</span>  *             promise = new jive.conc.Promise();
+<span class='linenumber'>  62</span>  *         $.ajax({
+<span class='linenumber'>  63</span>  *             url: url,
+<span class='linenumber'>  64</span>  *             type: 'GET',
+<span class='linenumber'>  65</span>  *             dataType: 'json',
+<span class='linenumber'>  66</span>  *             success: function(json) {
+<span class='linenumber'>  67</span>  *                 promise.emitSuccess(json)
+<span class='linenumber'>  68</span>  *             },
+<span class='linenumber'>  69</span>  *             error: function(xhr) {
+<span class='linenumber'>  70</span>  *                 promise.emitError(xhr.status);
+<span class='linenumber'>  71</span>  *             }
+<span class='linenumber'>  72</span>  *         });
+<span class='linenumber'>  73</span>  *         return promise;
+<span class='linenumber'>  74</span>  *     }
+<span class='linenumber'>  75</span>  *
+<span class='linenumber'>  76</span>  * This implementation of `getFriends()` might be called like this:
+<span class='linenumber'>  77</span>  *
+<span class='linenumber'>  78</span>  *     getFriends(myID).addCallback(function(friends) {
+<span class='linenumber'>  79</span>  *         friends.forEach(displayFriend);
+<span class='linenumber'>  80</span>  *     }).addErrback(function(status) {
+<span class='linenumber'>  81</span>  *         if (status == 404) {
+<span class='linenumber'>  82</span>  *             alert("Error: you have no friends!");
+<span class='linenumber'>  83</span>  *         }
+<span class='linenumber'>  84</span>  *     });
+<span class='linenumber'>  85</span>  * 
+<span class='linenumber'>  86</span>  * Promises can also be given a timeout.  If the timeout expires before the
+<span class='linenumber'>  87</span>  * promise is fulfilled then the promise will emit an error:
+<span class='linenumber'>  88</span>  *
+<span class='linenumber'>  89</span>  *     getFriends(myID).timeout(10000).addErrback(function(error) {
+<span class='linenumber'>  90</span>  *         if (e.toString().match("timeout")) {
+<span class='linenumber'>  91</span>  *             alert("Wow, this server is slooooow.");
+<span class='linenumber'>  92</span>  *         }
+<span class='linenumber'>  93</span>  *     });
+<span class='linenumber'>  94</span>  *
+<span class='linenumber'>  95</span>  * A promise will only emit an event once.  Once it has emitted a success,
+<span class='linenumber'>  96</span>  * error, or cancel event it will not emit any more events.
+<span class='linenumber'>  97</span>  *
+<span class='linenumber'>  98</span>  * @class
+<span class='linenumber'>  99</span>  * @extends jive.conc.observable
+<span class='linenumber'> 100</span>  * @requires jive.conc.observable
+<span class='linenumber'> 101</span>  */</span><span class="WHIT">
+<span class='linenumber'> 102</span> </span><span class="NAME">jive.conc.Promise</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="KEYW">function</span><span class="PUNC">(</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='linenumber'> 103</span> </span><span class="WHIT">    </span><span class="NAME">jive.conc.observable</span><span class="PUNC">(</span><span class="KEYW">this</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 104</span> 
+<span class='linenumber'> 105</span> </span><span class="WHIT">    </span><span class="KEYW">var</span><span class="WHIT"> </span><span class="NAME">hasFired</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="KEYW">false</span><span class="PUNC">,</span><span class="WHIT">
+<span class='linenumber'> 106</span> </span><span class="WHIT">        </span><span class="NAME">cancelled</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="KEYW">false</span><span class="PUNC">,</span><span class="WHIT">
+<span class='linenumber'> 107</span> </span><span class="WHIT">        </span><span class="NAME">timeoutDuration</span><span class="PUNC">,</span><span class="WHIT">
+<span class='linenumber'> 108</span> </span><span class="WHIT">        </span><span class="NAME">timer</span><span class="PUNC">,</span><span class="WHIT">
+<span class='linenumber'> 109</span> </span><span class="WHIT">        </span><span class="NAME">self</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="KEYW">this</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 110</span> 
+<span class='linenumber'> 111</span> </span><span class="WHIT">    </span><span class="COMM">/**
+<span class='linenumber'> 112</span>      * Adds a 'success' callback to the promise.
+<span class='linenumber'> 113</span>      *
+<span class='linenumber'> 114</span>      * @param {Function}    listener    function to be called when the promise emits 'success'
+<span class='linenumber'> 115</span>      * @returns {jive.conc.Promise} returns the receiver so that this method can be cascaded
+<span class='linenumber'> 116</span>      **/</span><span class="WHIT">
+<span class='linenumber'> 117</span> </span><span class="WHIT">    </span><span class="NAME">this.addCallback</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="KEYW">function</span><span class="PUNC">(</span><span class="NAME">listener</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='linenumber'> 118</span> </span><span class="WHIT">        </span><span class="NAME">this.addListener</span><span class="PUNC">(</span><span class="STRN">'success'</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">listener</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 119</span> </span><span class="WHIT">        </span><span class="KEYW">return</span><span class="WHIT"> </span><span class="KEYW">this</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 120</span> </span><span class="WHIT">    </span><span class="PUNC">}</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 121</span> 
+<span class='linenumber'> 122</span> </span><span class="WHIT">    </span><span class="COMM">/**
+<span class='linenumber'> 123</span>      * Adds an 'error' callback to the promise.
+<span class='linenumber'> 124</span>      *
+<span class='linenumber'> 125</span>      * @param {Function}    listener    function to be called when the promise emits 'error'
+<span class='linenumber'> 126</span>      * @returns {jive.conc.Promise} returns the receiver so that this method can be cascaded
+<span class='linenumber'> 127</span>      **/</span><span class="WHIT">
+<span class='linenumber'> 128</span> </span><span class="WHIT">    </span><span class="NAME">this.addErrback</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="KEYW">function</span><span class="PUNC">(</span><span class="NAME">listener</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='linenumber'> 129</span> </span><span class="WHIT">        </span><span class="NAME">this.addListener</span><span class="PUNC">(</span><span class="STRN">'error'</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">listener</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 130</span> </span><span class="WHIT">        </span><span class="KEYW">return</span><span class="WHIT"> </span><span class="KEYW">this</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 131</span> </span><span class="WHIT">    </span><span class="PUNC">}</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 132</span> 
+<span class='linenumber'> 133</span> </span><span class="WHIT">    </span><span class="COMM">/**
+<span class='linenumber'> 134</span>      * Adds a 'cancel' callback to the promise.  The promise will emit 'cancel'
+<span class='linenumber'> 135</span>      * when it is explicitly cancelled.
+<span class='linenumber'> 136</span>      *
+<span class='linenumber'> 137</span>      * @param {Function}    listener    function to be called when the promise emits 'cancel'
+<span class='linenumber'> 138</span>      * @returns {jive.conc.Promise} returns the receiver so that this method can be cascaded
+<span class='linenumber'> 139</span>      **/</span><span class="WHIT">
+<span class='linenumber'> 140</span> </span><span class="WHIT">    </span><span class="NAME">this.addCancelback</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="KEYW">function</span><span class="PUNC">(</span><span class="NAME">listener</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='linenumber'> 141</span> </span><span class="WHIT">        </span><span class="NAME">this.addListener</span><span class="PUNC">(</span><span class="STRN">'cancel'</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">listener</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 142</span> </span><span class="WHIT">        </span><span class="KEYW">return</span><span class="WHIT"> </span><span class="KEYW">this</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 143</span> </span><span class="WHIT">    </span><span class="PUNC">}</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 144</span> 
+<span class='linenumber'> 145</span> </span><span class="WHIT">    </span><span class="COMM">/**
+<span class='linenumber'> 146</span>      * Causes the promise to emit 'success'.  Any arguments given will be
+<span class='linenumber'> 147</span>      * passed to callbacks for the promise's 'success' event.
+<span class='linenumber'> 148</span>      *
+<span class='linenumber'> 149</span>      * Calling this method prevents the promise from emitting any further
+<span class='linenumber'> 150</span>      * events.
+<span class='linenumber'> 151</span>      *
+<span class='linenumber'> 152</span>      * @param {...any}  [eventArgs] arguments to be passed to 'success' listeners
+<span class='linenumber'> 153</span>      */</span><span class="WHIT">
+<span class='linenumber'> 154</span> </span><span class="WHIT">    </span><span class="NAME">this.emitSuccess</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="KEYW">function</span><span class="PUNC">(</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='linenumber'> 155</span> </span><span class="WHIT">        </span><span class="KEYW">var</span><span class="WHIT"> </span><span class="NAME">eventArgs</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">Array.prototype.slice.call</span><span class="PUNC">(</span><span class="NAME">arguments</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NUMB">0</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 156</span> </span><span class="WHIT">        </span><span class="KEYW">if</span><span class="WHIT"> </span><span class="PUNC">(</span><span class="PUNC">!</span><span class="NAME">hasFired</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='linenumber'> 157</span> </span><span class="WHIT">            </span><span class="NAME">hasFired</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="KEYW">true</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 158</span> </span><span class="WHIT">            </span><span class="NAME">this.emit.apply</span><span class="PUNC">(</span><span class="KEYW">this</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="PUNC">[</span><span class="STRN">'success'</span><span class="PUNC">]</span><span class="PUNC">.</span><span class="NAME">concat</span><span class="PUNC">(</span><span class="NAME">eventArgs</span><span class="PUNC">)</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 159</span> </span><span class="WHIT">        </span><span class="PUNC">}</span><span class="WHIT">
+<span class='linenumber'> 160</span> </span><span class="WHIT">    </span><span class="PUNC">}</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 161</span> 
+<span class='linenumber'> 162</span> </span><span class="WHIT">    </span><span class="COMM">/**
+<span class='linenumber'> 163</span>      * Causes the promise to emit 'error'.  Any arguments given will be
+<span class='linenumber'> 164</span>      * passed to callbacks for the promise's 'error' event.
+<span class='linenumber'> 165</span>      *
+<span class='linenumber'> 166</span>      * Calling this method prevents the promise from emitting any further
+<span class='linenumber'> 167</span>      * events.
+<span class='linenumber'> 168</span>      *
+<span class='linenumber'> 169</span>      * @param {...any} [eventArgs] arguments to be passed to 'error' listeners
+<span class='linenumber'> 170</span>      */</span><span class="WHIT">
+<span class='linenumber'> 171</span> </span><span class="WHIT">    </span><span class="NAME">this.emitError</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="KEYW">function</span><span class="PUNC">(</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='linenumber'> 172</span> </span><span class="WHIT">        </span><span class="KEYW">var</span><span class="WHIT"> </span><span class="NAME">eventArgs</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">Array.prototype.slice.call</span><span class="PUNC">(</span><span class="NAME">arguments</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NUMB">0</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 173</span> </span><span class="WHIT">        </span><span class="KEYW">if</span><span class="WHIT"> </span><span class="PUNC">(</span><span class="PUNC">!</span><span class="NAME">hasFired</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='linenumber'> 174</span> </span><span class="WHIT">            </span><span class="NAME">hasFired</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="KEYW">true</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 175</span> </span><span class="WHIT">            </span><span class="NAME">this.emit.apply</span><span class="PUNC">(</span><span class="KEYW">this</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="PUNC">[</span><span class="STRN">'error'</span><span class="PUNC">]</span><span class="PUNC">.</span><span class="NAME">concat</span><span class="PUNC">(</span><span class="NAME">eventArgs</span><span class="PUNC">)</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 176</span> </span><span class="WHIT">        </span><span class="PUNC">}</span><span class="WHIT">
+<span class='linenumber'> 177</span> </span><span class="WHIT">    </span><span class="PUNC">}</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 178</span> 
+<span class='linenumber'> 179</span> </span><span class="WHIT">    </span><span class="COMM">/**
+<span class='linenumber'> 180</span>      * @private
+<span class='linenumber'> 181</span>      */</span><span class="WHIT">
+<span class='linenumber'> 182</span> </span><span class="WHIT">    </span><span class="KEYW">function</span><span class="WHIT"> </span><span class="NAME">emitCancel</span><span class="PUNC">(</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='linenumber'> 183</span> </span><span class="WHIT">        </span><span class="KEYW">var</span><span class="WHIT"> </span><span class="NAME">eventArgs</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">Array.prototype.slice.call</span><span class="PUNC">(</span><span class="NAME">arguments</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NUMB">0</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 184</span> </span><span class="WHIT">        </span><span class="NAME">self.emit.apply</span><span class="PUNC">(</span><span class="NAME">self</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="PUNC">[</span><span class="STRN">'cancel'</span><span class="PUNC">]</span><span class="PUNC">.</span><span class="NAME">concat</span><span class="PUNC">(</span><span class="NAME">eventArgs</span><span class="PUNC">)</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 185</span> </span><span class="WHIT">    </span><span class="PUNC">}</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 186</span> 
+<span class='linenumber'> 187</span> </span><span class="WHIT">    </span><span class="COMM">/**
+<span class='linenumber'> 188</span>      * Cancels the promise.  This causes the promise to emit 'cancel'.
+<span class='linenumber'> 189</span>      *
+<span class='linenumber'> 190</span>      * In most cases the class or function that creates a promise will send
+<span class='linenumber'> 191</span>      * messages through the promise while callers listen for events.  However
+<span class='linenumber'> 192</span>      * with 'cancel' it may be useful to do the reverse: the creator of the
+<span class='linenumber'> 193</span>      * promise could abort some long running operation when a caller cancels
+<span class='linenumber'> 194</span>      * the promise.
+<span class='linenumber'> 195</span>      *
+<span class='linenumber'> 196</span>      * Calling this method prevents the promise from emitting any further
+<span class='linenumber'> 197</span>      * events.
+<span class='linenumber'> 198</span>      */</span><span class="WHIT">
+<span class='linenumber'> 199</span> </span><span class="WHIT">    </span><span class="NAME">this.cancel</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="KEYW">function</span><span class="PUNC">(</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='linenumber'> 200</span> </span><span class="WHIT">        </span><span class="KEYW">if</span><span class="WHIT"> </span><span class="PUNC">(</span><span class="PUNC">!</span><span class="NAME">cancelled</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='linenumber'> 201</span> </span><span class="WHIT">            </span><span class="NAME">cancelled</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="KEYW">true</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 202</span> </span><span class="WHIT">            </span><span class="NAME">this.removeListener</span><span class="PUNC">(</span><span class="STRN">'success'</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 203</span> </span><span class="WHIT">            </span><span class="NAME">this.removeListener</span><span class="PUNC">(</span><span class="STRN">'error'</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 204</span> </span><span class="WHIT">            </span><span class="NAME">emitCancel</span><span class="PUNC">(</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 205</span> </span><span class="WHIT">        </span><span class="PUNC">}</span><span class="WHIT">
+<span class='linenumber'> 206</span> </span><span class="WHIT">    </span><span class="PUNC">}</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 207</span> 
+<span class='linenumber'> 208</span> </span><span class="WHIT">    </span><span class="COMM">/**
+<span class='linenumber'> 209</span>      * Calling this method with a `delay` argument causes the timeout to abort
+<span class='linenumber'> 210</span>      * after the given length of time.  If the promise has not emitted some
+<span class='linenumber'> 211</span>      * event by the time the timout expires then the promise will emit an
+<span class='linenumber'> 212</span>      * 'error' event with a single argument of the form, `new Error('timout')`.
+<span class='linenumber'> 213</span>      *
+<span class='linenumber'> 214</span>      * Calling `timeout()` with a `delay` argument a second time will cancel
+<span class='linenumber'> 215</span>      * the previous timeout and will start a new timeout.
+<span class='linenumber'> 216</span>      *
+<span class='linenumber'> 217</span>      * Calling `timeout()` with no arguments will have no side-effect but will
+<span class='linenumber'> 218</span>      * return the timeout that has already been set in milliseconds.  If no
+<span class='linenumber'> 219</span>      * timeout has been set then calling `timout()` with no arguments will
+<span class='linenumber'> 220</span>      * return `undefined`.
+<span class='linenumber'> 221</span>      *
+<span class='linenumber'> 222</span>      * @param {number}  [delay] time in milliseconds to wait before aborting the promise
+<span class='linenumber'> 223</span>      * @returns {number}    Returns the currently set timeout delay if there is:
+<span class='linenumber'> 224</span>      * one.  Otherwise returns the receiver.
+<span class='linenumber'> 225</span>      */</span><span class="WHIT">
+<span class='linenumber'> 226</span> </span><span class="WHIT">    </span><span class="NAME">this.timeout</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="KEYW">function</span><span class="PUNC">(</span><span class="NAME">timeout</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='linenumber'> 227</span> </span><span class="WHIT">        </span><span class="KEYW">if</span><span class="WHIT"> </span><span class="PUNC">(</span><span class="KEYW">typeof</span><span class="WHIT"> </span><span class="NAME">timeout</span><span class="WHIT"> </span><span class="PUNC">==</span><span class="WHIT"> </span><span class="STRN">'undefined'</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='linenumber'> 228</span> </span><span class="WHIT">            </span><span class="KEYW">return</span><span class="WHIT"> </span><span class="NAME">timeoutDuration</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 229</span> </span><span class="WHIT">        </span><span class="PUNC">}</span><span class="WHIT">
+<span class='linenumber'> 230</span> 
+<span class='linenumber'> 231</span> </span><span class="WHIT">        </span><span class="NAME">timeoutDuration</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">timeout</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 232</span> </span><span class="WHIT">        </span><span class="KEYW">if</span><span class="WHIT"> </span><span class="PUNC">(</span><span class="NAME">timer</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='linenumber'> 233</span> </span><span class="WHIT">            </span><span class="NAME">clearTimeout</span><span class="PUNC">(</span><span class="NAME">timer</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 234</span> </span><span class="WHIT">            </span><span class="NAME">timer</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="KEYW">null</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 235</span> </span><span class="WHIT">        </span><span class="PUNC">}</span><span class="WHIT">
+<span class='linenumber'> 236</span> 
+<span class='linenumber'> 237</span> </span><span class="WHIT">        </span><span class="NAME">timer</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">setTimeout</span><span class="PUNC">(</span><span class="KEYW">function</span><span class="PUNC">(</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='linenumber'> 238</span> </span><span class="WHIT">            </span><span class="NAME">timer</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="KEYW">null</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 239</span> </span><span class="WHIT">            </span><span class="KEYW">if</span><span class="WHIT"> </span><span class="PUNC">(</span><span class="PUNC">!</span><span class="NAME">hasFired</span><span class="WHIT"> </span><span class="PUNC">&&</span><span class="WHIT"> </span><span class="PUNC">!</span><span class="NAME">cancelled</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='linenumber'> 240</span> </span><span class="WHIT">                </span><span class="NAME">self.emitError</span><span class="PUNC">(</span><span class="KEYW">new</span><span class="WHIT"> </span><span class="NAME">Error</span><span class="PUNC">(</span><span class="STRN">'timeout'</span><span class="PUNC">)</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 241</span> </span><span class="WHIT">            </span><span class="PUNC">}</span><span class="WHIT">
+<span class='linenumber'> 242</span> </span><span class="WHIT">        </span><span class="PUNC">}</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">timeoutDuration</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 243</span> 
+<span class='linenumber'> 244</span> </span><span class="WHIT">        </span><span class="KEYW">return</span><span class="WHIT"> </span><span class="KEYW">this</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 245</span> </span><span class="WHIT">    </span><span class="PUNC">}</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 246</span> </span><span class="PUNC">}</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 247</span> </span></pre></body></html>
