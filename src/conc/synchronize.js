@@ -16,6 +16,9 @@
 
 /*extern jive */
 
+jive = this.jive || {};
+jive.conc = jive.conc || {};
+
 /**
  * A promise - an instance of jive.conc.Promise - is an object that represents
  * the eventual outcome of an asynchronous operation.  This function takes an

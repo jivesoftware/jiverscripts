@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+jive = this.jive || {};
+jive.oo = jive.oo || {};
+
 /**
  * Given two or more classes `compose()` creates a new class that inherits from
  * all of the composed classes.  The composed classes may have declare their
