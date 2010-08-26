@@ -201,3 +201,11 @@ asyncTest("runs a callback when an event is proxied with its original name", 1, 
 
     this.emitter.emit('testEvent', 'foo');
 });
+
+asyncTest("calls handlers that were registered after the event was fired during synchronous execution", 1, function() {
+    this.emitter.emit('testEvent', 'foo');
+    this.emitter.addListener('testEvent', function() {
+        ok( true, 'invoked "testEvent" listener' );
+        start();
+    });
+});

@@ -57,6 +57,8 @@ jive.conc = jive.conc || {};
  * @param   {Object}    klass   object to mix observable methods into
  */
 jive.conc.observable = function(klass) {
+    var skipLateListeners = false;
+
     /**
      * Returns an array of event listeners (functions) registered on the
      * receiver for the given type of event.  Returns an empty array if no
@@ -90,8 +92,12 @@ jive.conc.observable = function(klass) {
         // Emit a 'newListener' event.  It is important to emit this event
         // before adding the listener to prevent a 'newListener' listener from
         // being called as soon as it is added.
+        skipLateListeners = true;
         this.emit('newListener', event, listener);
+        skipLateListeners = false;
+
         this.listeners(event).push(listener);
+
         return this;
     }
 
@@ -134,9 +140,9 @@ jive.conc.observable = function(klass) {
      * @returns {jive.conc.observable}  returns the receiver so that this method can be cascaded
      */
     klass.emit = function(event/*, eventParams */) {
-        var eventParams = Array.prototype.slice.call(arguments, 1),
-            listeners = this.listeners(event),
-            that = this;
+        var eventParams = Array.prototype.slice.call(arguments, 1)
+          , listeners = this.listeners(event).slice()  // Create a copy of the listeners array.
+          , that = this;
 
         function execute(listener) {
             // Wrapping callbacks in a `nextTick()` causes callbacks to be run
@@ -153,8 +159,31 @@ jive.conc.observable = function(klass) {
             execute(listeners[i]);
         }
 
+        // Catch any listeners that were added after the event was emitted
+        // during synchronous execution.
+        if (!skipLateListeners) {
+            nextTick(function() {
+                var lateListeners = that.listeners(event)
+                  , executed;
+
+                for (var i = 0; i < lateListeners.length; i += 1) {
+                    executed = false;
+
+                    for (var j = 0; j < listeners.length; j += 1) {
+                        if (lateListeners[i] === listeners[j]) {
+                            executed = true;
+                        }
+                    }
+
+                    if (!executed) {
+                        execute(lateListeners[i]);
+                    }
+                }
+            });
+        }
+
         return this;
-    }
+    };
 
     /**
      * Behaves the same as `emit()` except that this function creates a promise
