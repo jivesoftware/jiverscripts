@@ -1,0 +1,245 @@
+<html><head><meta http-equiv="content-type" content="text/html; charset=utf-8"> <link rel=stylesheet href="../../code.css" type="text/css"></head><body><pre><span class='linenumber'>   1</span> <span class="COMM">/*
+<span class='linenumber'>   2</span>  * Copyright 2010 Jive Software
+<span class='linenumber'>   3</span>  * 
+<span class='linenumber'>   4</span>  * Licensed under the Apache License, Version 2.0 (the "License");
+<span class='linenumber'>   5</span>  * you may not use this file except in compliance with the License.
+<span class='linenumber'>   6</span>  * You may obtain a copy of the License at
+<span class='linenumber'>   7</span>  * 
+<span class='linenumber'>   8</span>  *     http://www.apache.org/licenses/LICENSE-2.0
+<span class='linenumber'>   9</span>  * 
+<span class='linenumber'>  10</span>  * Unless required by applicable law or agreed to in writing, software
+<span class='linenumber'>  11</span>  * distributed under the License is distributed on an "AS IS" BASIS,
+<span class='linenumber'>  12</span>  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+<span class='linenumber'>  13</span>  * See the License for the specific language governing permissions and
+<span class='linenumber'>  14</span>  * limitations under the License.
+<span class='linenumber'>  15</span>  */</span><span class="WHIT">
+<span class='linenumber'>  16</span> 
+<span class='linenumber'>  17</span> </span><span class="COMM">/*jslint undef:true laxbreak:true browser:true */</span><span class="WHIT">
+<span class='linenumber'>  18</span> </span><span class="COMM">/*global jive */</span><span class="WHIT">
+<span class='linenumber'>  19</span> 
+<span class='linenumber'>  20</span> </span><span class="NAME">jive</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">this.jive</span><span class="WHIT"> </span><span class="PUNC">||</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="PUNC">}</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'>  21</span> </span><span class="NAME">jive.conc</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">jive.conc</span><span class="WHIT"> </span><span class="PUNC">||</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="PUNC">}</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'>  22</span> 
+<span class='linenumber'>  23</span> </span><span class="COMM">/**
+<span class='linenumber'>  24</span>  * This is a mix in that can add methods to any object for emitting events and
+<span class='linenumber'>  25</span>  * for registering event listeners.  This can be useful, for example, to create
+<span class='linenumber'>  26</span>  * view classes that emit events that a controller class can listen to and
+<span class='linenumber'>  27</span>  * handle.  That way view classes can push information to the controller
+<span class='linenumber'>  28</span>  * without having to know about the implementation of the controller.
+<span class='linenumber'>  29</span>  *
+<span class='linenumber'>  30</span>  * jive.conc.observable is a function.  Call it with some object as an argument
+<span class='linenumber'>  31</span>  * and it will add methods to that object.  For example:
+<span class='linenumber'>  32</span>  *
+<span class='linenumber'>  33</span>  *     var MyClass = function(...) { ... };
+<span class='linenumber'>  34</span>  *     jive.conc.observable(MyClass.prototype);
+<span class='linenumber'>  35</span>  *
+<span class='linenumber'>  36</span>  *     var myObj = new MyClass();
+<span class='linenumber'>  37</span>  *     myObj.addListener('someChange', function(changedValue) {
+<span class='linenumber'>  38</span>  *         alert(changedValue + ' just changed!');
+<span class='linenumber'>  39</span>  *     });
+<span class='linenumber'>  40</span>  *     myObj.listeners('someChange');  //=> [function(changedValue) { ... }]
+<span class='linenumber'>  41</span>  *
+<span class='linenumber'>  42</span>  * The events that jive.conc.observable makes possible are completely distinct
+<span class='linenumber'>  43</span>  * from DOM events.  These events are triggered on JavaScript objects, not DOM
+<span class='linenumber'>  44</span>  * elements.  However as with DOM events, listeners registered via
+<span class='linenumber'>  45</span>  * jive.conc.observable will be called asynchronously.  That means that
+<span class='linenumber'>  46</span>  * whatever bit of code emits an event will have to return control to the event
+<span class='linenumber'>  47</span>  * loop before any event listeners are called.
+<span class='linenumber'>  48</span>  *
+<span class='linenumber'>  49</span>  * Events may include any number of event parameters, which will be passed as
+<span class='linenumber'>  50</span>  * arguments to event listeners.
+<span class='linenumber'>  51</span>  *
+<span class='linenumber'>  52</span>  * Event listeners will be invoked in the context of the observable object.  So
+<span class='linenumber'>  53</span>  * in the body of an event listener `this` will refer to the object that
+<span class='linenumber'>  54</span>  * emitted the event.
+<span class='linenumber'>  55</span>  *
+<span class='linenumber'>  56</span>  * @class
+<span class='linenumber'>  57</span>  * @param   {Object}    klass   object to mix observable methods into
+<span class='linenumber'>  58</span>  */</span><span class="WHIT">
+<span class='linenumber'>  59</span> </span><span class="NAME">jive.conc.observable</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="KEYW">function</span><span class="PUNC">(</span><span class="NAME">klass</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='linenumber'>  60</span> </span><span class="WHIT">    </span><span class="KEYW">var</span><span class="WHIT"> </span><span class="NAME">skipLateListeners</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="KEYW">false</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'>  61</span> 
+<span class='linenumber'>  62</span> </span><span class="WHIT">    </span><span class="COMM">/**
+<span class='linenumber'>  63</span>      * Returns an array of event listeners (functions) registered on the
+<span class='linenumber'>  64</span>      * receiver for the given type of event.  Returns an empty array if no
+<span class='linenumber'>  65</span>      * listeners are registered.
+<span class='linenumber'>  66</span>      *
+<span class='linenumber'>  67</span>      * @methodOf jive.conc.observable#
+<span class='linenumber'>  68</span>      * @param {string}  type    listeners for this type of event will be returned
+<span class='linenumber'>  69</span>      * @returns {Function[]}    array of event listeners
+<span class='linenumber'>  70</span>      */</span><span class="WHIT">
+<span class='linenumber'>  71</span> </span><span class="WHIT">    </span><span class="NAME">klass.listeners</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="KEYW">function</span><span class="PUNC">(</span><span class="NAME">type</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='linenumber'>  72</span> </span><span class="WHIT">        </span><span class="KEYW">if</span><span class="WHIT"> </span><span class="PUNC">(</span><span class="PUNC">!</span><span class="NAME">this._events</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='linenumber'>  73</span> </span><span class="WHIT">            </span><span class="NAME">this._events</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="PUNC">}</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'>  74</span> </span><span class="WHIT">        </span><span class="PUNC">}</span><span class="WHIT">
+<span class='linenumber'>  75</span> </span><span class="WHIT">        </span><span class="KEYW">if</span><span class="WHIT"> </span><span class="PUNC">(</span><span class="PUNC">!</span><span class="NAME">this._events</span><span class="PUNC">[</span><span class="NAME">type</span><span class="PUNC">]</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='linenumber'>  76</span> </span><span class="WHIT">            </span><span class="NAME">this._events</span><span class="PUNC">[</span><span class="NAME">type</span><span class="PUNC">]</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="PUNC">[</span><span class="PUNC">]</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'>  77</span> </span><span class="WHIT">        </span><span class="PUNC">}</span><span class="WHIT">
+<span class='linenumber'>  78</span> </span><span class="WHIT">        </span><span class="KEYW">return</span><span class="WHIT"> </span><span class="NAME">this._events</span><span class="PUNC">[</span><span class="NAME">type</span><span class="PUNC">]</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'>  79</span> </span><span class="WHIT">    </span><span class="PUNC">}</span><span class="WHIT">
+<span class='linenumber'>  80</span> 
+<span class='linenumber'>  81</span> </span><span class="WHIT">    </span><span class="COMM">/**
+<span class='linenumber'>  82</span>      * Registers an event listener on the receiver for the given type of event.
+<span class='linenumber'>  83</span>      * When that event is emitted by the receiver `listener` will be invoked
+<span class='linenumber'>  84</span>      * asynchronously with any event parameters as arguments.
+<span class='linenumber'>  85</span>      *
+<span class='linenumber'>  86</span>      * @methodOf jive.conc.observable#
+<span class='linenumber'>  87</span>      * @param   {string}    type    type of event to listen for
+<span class='linenumber'>  88</span>      * @param   {Function}  listener    function to invoke when the given event occurs
+<span class='linenumber'>  89</span>      * @returns {jive.conc.observable}  returns the receiver so that this method can be cascaded
+<span class='linenumber'>  90</span>      */</span><span class="WHIT">
+<span class='linenumber'>  91</span> </span><span class="WHIT">    </span><span class="NAME">klass.addListener</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="KEYW">function</span><span class="PUNC">(</span><span class="NAME">event</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">listener</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='linenumber'>  92</span> </span><span class="WHIT">        </span><span class="COMM">// Emit a 'newListener' event.  It is important to emit this event</span><span class="WHIT">
+<span class='linenumber'>  93</span> </span><span class="WHIT">        </span><span class="COMM">// before adding the listener to prevent a 'newListener' listener from</span><span class="WHIT">
+<span class='linenumber'>  94</span> </span><span class="WHIT">        </span><span class="COMM">// being called as soon as it is added.</span><span class="WHIT">
+<span class='linenumber'>  95</span> </span><span class="WHIT">        </span><span class="NAME">skipLateListeners</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="KEYW">true</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'>  96</span> </span><span class="WHIT">        </span><span class="NAME">this.emit</span><span class="PUNC">(</span><span class="STRN">'newListener'</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">event</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">listener</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'>  97</span> </span><span class="WHIT">        </span><span class="NAME">skipLateListeners</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="KEYW">false</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'>  98</span> 
+<span class='linenumber'>  99</span> </span><span class="WHIT">        </span><span class="NAME">this.listeners</span><span class="PUNC">(</span><span class="NAME">event</span><span class="PUNC">)</span><span class="PUNC">.</span><span class="NAME">push</span><span class="PUNC">(</span><span class="NAME">listener</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 100</span> 
+<span class='linenumber'> 101</span> </span><span class="WHIT">        </span><span class="KEYW">return</span><span class="WHIT"> </span><span class="KEYW">this</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 102</span> </span><span class="WHIT">    </span><span class="PUNC">}</span><span class="WHIT">
+<span class='linenumber'> 103</span> 
+<span class='linenumber'> 104</span> </span><span class="WHIT">    </span><span class="COMM">/**
+<span class='linenumber'> 105</span>      * Un-registers the given listener from the receiver as a listener for the
+<span class='linenumber'> 106</span>      * given type of event.  If no `listener` argument is given removes all
+<span class='linenumber'> 107</span>      * listeners for the given event type.
+<span class='linenumber'> 108</span>      *
+<span class='linenumber'> 109</span>      * @methodOf jive.conc.observable#
+<span class='linenumber'> 110</span>      * @param   {string}    type    type of event to stop listening for
+<span class='linenumber'> 111</span>      * @param   {Function}  [listener]  specific listener to remove
+<span class='linenumber'> 112</span>      * @returns {jive.conc.observable}  returns the receiver so that this method can be cascaded
+<span class='linenumber'> 113</span>      */</span><span class="WHIT">
+<span class='linenumber'> 114</span> </span><span class="WHIT">    </span><span class="NAME">klass.removeListener</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="KEYW">function</span><span class="PUNC">(</span><span class="NAME">event</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">listener</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='linenumber'> 115</span> </span><span class="WHIT">        </span><span class="KEYW">var</span><span class="WHIT"> </span><span class="NAME">listeners</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">this.listeners</span><span class="PUNC">(</span><span class="NAME">event</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 116</span> </span><span class="WHIT">        </span><span class="KEYW">for</span><span class="WHIT"> </span><span class="PUNC">(</span><span class="KEYW">var</span><span class="WHIT"> </span><span class="NAME">i</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NUMB">0</span><span class="PUNC">;</span><span class="WHIT"> </span><span class="NAME">i</span><span class="WHIT"> </span><span class="PUNC">&lt;</span><span class="WHIT"> </span><span class="NAME">listeners.length</span><span class="PUNC">;</span><span class="WHIT"> </span><span class="NAME">i</span><span class="WHIT"> </span><span class="PUNC">+</span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NUMB">1</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='linenumber'> 117</span> </span><span class="WHIT">            </span><span class="KEYW">if</span><span class="WHIT"> </span><span class="PUNC">(</span><span class="NAME">listeners</span><span class="PUNC">[</span><span class="NAME">i</span><span class="PUNC">]</span><span class="WHIT"> </span><span class="PUNC">===</span><span class="WHIT"> </span><span class="NAME">listener</span><span class="WHIT"> </span><span class="PUNC">||</span><span class="WHIT"> </span><span class="KEYW">typeof</span><span class="WHIT"> </span><span class="NAME">listener</span><span class="WHIT"> </span><span class="PUNC">==</span><span class="WHIT"> </span><span class="STRN">'undefined'</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='linenumber'> 118</span> </span><span class="WHIT">                </span><span class="NAME">listeners.splice</span><span class="PUNC">(</span><span class="NAME">i</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NUMB">1</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">  </span><span class="COMM">// Removes the matching listener from the array.</span><span class="WHIT">
+<span class='linenumber'> 119</span> </span><span class="WHIT">                </span><span class="NAME">i</span><span class="WHIT"> </span><span class="PUNC">-</span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NUMB">1</span><span class="PUNC">;</span><span class="WHIT">  </span><span class="COMM">// Compensate for array length changing within the loop.</span><span class="WHIT">
+<span class='linenumber'> 120</span> </span><span class="WHIT">            </span><span class="PUNC">}</span><span class="WHIT">
+<span class='linenumber'> 121</span> </span><span class="WHIT">        </span><span class="PUNC">}</span><span class="WHIT">
+<span class='linenumber'> 122</span> </span><span class="WHIT">        </span><span class="KEYW">return</span><span class="WHIT"> </span><span class="KEYW">this</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 123</span> </span><span class="WHIT">    </span><span class="PUNC">}</span><span class="WHIT">
+<span class='linenumber'> 124</span> 
+<span class='linenumber'> 125</span> </span><span class="WHIT">    </span><span class="COMM">// Include jive.conc.nextTick for improved event dispatch performance.</span><span class="WHIT">
+<span class='linenumber'> 126</span> </span><span class="WHIT">    </span><span class="KEYW">var</span><span class="WHIT"> </span><span class="NAME">nextTick</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">jive.conc.nextTick</span><span class="WHIT"> </span><span class="PUNC">||</span><span class="WHIT"> </span><span class="KEYW">function</span><span class="PUNC">(</span><span class="NAME">callback</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='linenumber'> 127</span> </span><span class="WHIT">        </span><span class="COMM">// Setting the timeout to `0` prevents any unnecessary delay.</span><span class="WHIT">
+<span class='linenumber'> 128</span> </span><span class="WHIT">        </span><span class="NAME">setTimeout</span><span class="PUNC">(</span><span class="NAME">callback</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NUMB">0</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 129</span> </span><span class="WHIT">    </span><span class="PUNC">}</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 130</span> 
+<span class='linenumber'> 131</span> </span><span class="WHIT">    </span><span class="COMM">/**
+<span class='linenumber'> 132</span>      * Emits an event, thus causing any event listeners registered on the
+<span class='linenumber'> 133</span>      * receiver for that event to be invoked asynchronously.  Any event
+<span class='linenumber'> 134</span>      * parameters that are given will be passed as arguments to event
+<span class='linenumber'> 135</span>      * listeners.
+<span class='linenumber'> 136</span>      *
+<span class='linenumber'> 137</span>      * @methodOf jive.conc.observable#
+<span class='linenumber'> 138</span>      * @param   {string}    type    type of event to emit
+<span class='linenumber'> 139</span>      * @param   {...any}    [eventParams]   zero or more event parameters to pass as arguments to event listeners
+<span class='linenumber'> 140</span>      * @returns {jive.conc.observable}  returns the receiver so that this method can be cascaded
+<span class='linenumber'> 141</span>      */</span><span class="WHIT">
+<span class='linenumber'> 142</span> </span><span class="WHIT">    </span><span class="NAME">klass.emit</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="KEYW">function</span><span class="PUNC">(</span><span class="NAME">event</span><span class="COMM">/*, eventParams */</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='linenumber'> 143</span> </span><span class="WHIT">        </span><span class="KEYW">var</span><span class="WHIT"> </span><span class="NAME">eventParams</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">Array.prototype.slice.call</span><span class="PUNC">(</span><span class="NAME">arguments</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NUMB">1</span><span class="PUNC">)</span><span class="WHIT">
+<span class='linenumber'> 144</span> </span><span class="WHIT">          </span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">listeners</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">this.listeners</span><span class="PUNC">(</span><span class="NAME">event</span><span class="PUNC">)</span><span class="PUNC">.</span><span class="NAME">slice</span><span class="PUNC">(</span><span class="PUNC">)</span><span class="WHIT">  </span><span class="COMM">// Create a copy of the listeners array.</span><span class="WHIT">
+<span class='linenumber'> 145</span> </span><span class="WHIT">          </span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">that</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="KEYW">this</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 146</span> 
+<span class='linenumber'> 147</span> </span><span class="WHIT">        </span><span class="KEYW">function</span><span class="WHIT"> </span><span class="NAME">execute</span><span class="PUNC">(</span><span class="NAME">listener</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='linenumber'> 148</span> </span><span class="WHIT">            </span><span class="COMM">// Wrapping callbacks in a `nextTick()` causes callbacks to be run</span><span class="WHIT">
+<span class='linenumber'> 149</span> </span><span class="WHIT">            </span><span class="COMM">// asynchronously.  This means that event listeners will not block</span><span class="WHIT">
+<span class='linenumber'> 150</span> </span><span class="WHIT">            </span><span class="COMM">// the function that emits an event.  It also means that if one</span><span class="WHIT">
+<span class='linenumber'> 151</span> </span><span class="WHIT">            </span><span class="COMM">// listener throws an exception it will not prevent other listeners</span><span class="WHIT">
+<span class='linenumber'> 152</span> </span><span class="WHIT">            </span><span class="COMM">// from running.</span><span class="WHIT">
+<span class='linenumber'> 153</span> </span><span class="WHIT">            </span><span class="NAME">nextTick</span><span class="PUNC">(</span><span class="KEYW">function</span><span class="PUNC">(</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='linenumber'> 154</span> </span><span class="WHIT">                </span><span class="NAME">listener.apply</span><span class="PUNC">(</span><span class="NAME">that</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">eventParams</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 155</span> </span><span class="WHIT">            </span><span class="PUNC">}</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 156</span> </span><span class="WHIT">        </span><span class="PUNC">}</span><span class="WHIT">
+<span class='linenumber'> 157</span> 
+<span class='linenumber'> 158</span> </span><span class="WHIT">        </span><span class="KEYW">for</span><span class="WHIT"> </span><span class="PUNC">(</span><span class="KEYW">var</span><span class="WHIT"> </span><span class="NAME">i</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NUMB">0</span><span class="PUNC">;</span><span class="WHIT"> </span><span class="NAME">i</span><span class="WHIT"> </span><span class="PUNC">&lt;</span><span class="WHIT"> </span><span class="NAME">listeners.length</span><span class="PUNC">;</span><span class="WHIT"> </span><span class="NAME">i</span><span class="WHIT"> </span><span class="PUNC">+</span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NUMB">1</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='linenumber'> 159</span> </span><span class="WHIT">            </span><span class="NAME">execute</span><span class="PUNC">(</span><span class="NAME">listeners</span><span class="PUNC">[</span><span class="NAME">i</span><span class="PUNC">]</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 160</span> </span><span class="WHIT">        </span><span class="PUNC">}</span><span class="WHIT">
+<span class='linenumber'> 161</span> 
+<span class='linenumber'> 162</span> </span><span class="WHIT">        </span><span class="COMM">// Catch any listeners that were added after the event was emitted</span><span class="WHIT">
+<span class='linenumber'> 163</span> </span><span class="WHIT">        </span><span class="COMM">// during synchronous execution.</span><span class="WHIT">
+<span class='linenumber'> 164</span> </span><span class="WHIT">        </span><span class="KEYW">if</span><span class="WHIT"> </span><span class="PUNC">(</span><span class="PUNC">!</span><span class="NAME">skipLateListeners</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='linenumber'> 165</span> </span><span class="WHIT">            </span><span class="NAME">nextTick</span><span class="PUNC">(</span><span class="KEYW">function</span><span class="PUNC">(</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='linenumber'> 166</span> </span><span class="WHIT">                </span><span class="KEYW">var</span><span class="WHIT"> </span><span class="NAME">lateListeners</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">that.listeners</span><span class="PUNC">(</span><span class="NAME">event</span><span class="PUNC">)</span><span class="WHIT">
+<span class='linenumber'> 167</span> </span><span class="WHIT">                  </span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">executed</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 168</span> 
+<span class='linenumber'> 169</span> </span><span class="WHIT">                </span><span class="KEYW">for</span><span class="WHIT"> </span><span class="PUNC">(</span><span class="KEYW">var</span><span class="WHIT"> </span><span class="NAME">i</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NUMB">0</span><span class="PUNC">;</span><span class="WHIT"> </span><span class="NAME">i</span><span class="WHIT"> </span><span class="PUNC">&lt;</span><span class="WHIT"> </span><span class="NAME">lateListeners.length</span><span class="PUNC">;</span><span class="WHIT"> </span><span class="NAME">i</span><span class="WHIT"> </span><span class="PUNC">+</span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NUMB">1</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='linenumber'> 170</span> </span><span class="WHIT">                    </span><span class="NAME">executed</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="KEYW">false</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 171</span> 
+<span class='linenumber'> 172</span> </span><span class="WHIT">                    </span><span class="KEYW">for</span><span class="WHIT"> </span><span class="PUNC">(</span><span class="KEYW">var</span><span class="WHIT"> </span><span class="NAME">j</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NUMB">0</span><span class="PUNC">;</span><span class="WHIT"> </span><span class="NAME">j</span><span class="WHIT"> </span><span class="PUNC">&lt;</span><span class="WHIT"> </span><span class="NAME">listeners.length</span><span class="PUNC">;</span><span class="WHIT"> </span><span class="NAME">j</span><span class="WHIT"> </span><span class="PUNC">+</span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NUMB">1</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='linenumber'> 173</span> </span><span class="WHIT">                        </span><span class="KEYW">if</span><span class="WHIT"> </span><span class="PUNC">(</span><span class="NAME">lateListeners</span><span class="PUNC">[</span><span class="NAME">i</span><span class="PUNC">]</span><span class="WHIT"> </span><span class="PUNC">===</span><span class="WHIT"> </span><span class="NAME">listeners</span><span class="PUNC">[</span><span class="NAME">j</span><span class="PUNC">]</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='linenumber'> 174</span> </span><span class="WHIT">                            </span><span class="NAME">executed</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="KEYW">true</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 175</span> </span><span class="WHIT">                        </span><span class="PUNC">}</span><span class="WHIT">
+<span class='linenumber'> 176</span> </span><span class="WHIT">                    </span><span class="PUNC">}</span><span class="WHIT">
+<span class='linenumber'> 177</span> 
+<span class='linenumber'> 178</span> </span><span class="WHIT">                    </span><span class="KEYW">if</span><span class="WHIT"> </span><span class="PUNC">(</span><span class="PUNC">!</span><span class="NAME">executed</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='linenumber'> 179</span> </span><span class="WHIT">                        </span><span class="NAME">execute</span><span class="PUNC">(</span><span class="NAME">lateListeners</span><span class="PUNC">[</span><span class="NAME">i</span><span class="PUNC">]</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 180</span> </span><span class="WHIT">                    </span><span class="PUNC">}</span><span class="WHIT">
+<span class='linenumber'> 181</span> </span><span class="WHIT">                </span><span class="PUNC">}</span><span class="WHIT">
+<span class='linenumber'> 182</span> </span><span class="WHIT">            </span><span class="PUNC">}</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 183</span> </span><span class="WHIT">        </span><span class="PUNC">}</span><span class="WHIT">
+<span class='linenumber'> 184</span> 
+<span class='linenumber'> 185</span> </span><span class="WHIT">        </span><span class="KEYW">return</span><span class="WHIT"> </span><span class="KEYW">this</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 186</span> </span><span class="WHIT">    </span><span class="PUNC">}</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 187</span> 
+<span class='linenumber'> 188</span> </span><span class="WHIT">    </span><span class="COMM">/**
+<span class='linenumber'> 189</span>      * Behaves the same as `emit()` except that this function creates a promise
+<span class='linenumber'> 190</span>      * which is passed with the event as an additional event parameter and that
+<span class='linenumber'> 191</span>      * is returned by `eventP()`.
+<span class='linenumber'> 192</span>      *
+<span class='linenumber'> 193</span>      * @methodOf jive.conc.observable#
+<span class='linenumber'> 194</span>      * @param   {string}    type    type of event to emit
+<span class='linenumber'> 195</span>      * @param   {...any}    [eventParams]   zero or more event parameters to pass as arguments to event listeners
+<span class='linenumber'> 196</span>      * @returns {jive.conc.Promise} returns a promise that is also passed with event parameters
+<span class='linenumber'> 197</span>      * @requires jive.conc.Promise
+<span class='linenumber'> 198</span>      */</span><span class="WHIT">
+<span class='linenumber'> 199</span> </span><span class="WHIT">    </span><span class="NAME">klass.emitP</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="KEYW">function</span><span class="PUNC">(</span><span class="NAME">event</span><span class="COMM">/*, eventParams */</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='linenumber'> 200</span> </span><span class="WHIT">        </span><span class="KEYW">var</span><span class="WHIT"> </span><span class="NAME">args</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">Array.prototype.slice.call</span><span class="PUNC">(</span><span class="NAME">arguments</span><span class="PUNC">)</span><span class="WHIT">
+<span class='linenumber'> 201</span> </span><span class="WHIT">          </span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">promise</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="KEYW">new</span><span class="WHIT"> </span><span class="NAME">jive.conc.Promise</span><span class="PUNC">(</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 202</span> </span><span class="WHIT">        </span><span class="NAME">this.emit.apply</span><span class="PUNC">(</span><span class="KEYW">this</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">args.concat</span><span class="PUNC">(</span><span class="NAME">promise</span><span class="PUNC">)</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 203</span> </span><span class="WHIT">        </span><span class="KEYW">return</span><span class="WHIT"> </span><span class="NAME">promise</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 204</span> </span><span class="WHIT">    </span><span class="PUNC">}</span><span class="WHIT">
+<span class='linenumber'> 205</span> 
+<span class='linenumber'> 206</span> </span><span class="WHIT">    </span><span class="COMM">/**
+<span class='linenumber'> 207</span>      * Listens for an event from emitter and automatically re-emits the same
+<span class='linenumber'> 208</span>      * event.  If `newType` is given the event will be re-emitted with
+<span class='linenumber'> 209</span>      * that name instead of the original event name.  If `listener` is given it
+<span class='linenumber'> 210</span>      * will be registered as an event handler in addition to re-emitting
+<span class='linenumber'> 211</span>      * events.
+<span class='linenumber'> 212</span>      *
+<span class='linenumber'> 213</span>      * Listeners registered for the re-emitted event will run in the context of
+<span class='linenumber'> 214</span>      * the receiver of proxyListener, not the original emitter of the event.
+<span class='linenumber'> 215</span>      *
+<span class='linenumber'> 216</span>      * @methodOf jive.conc.observable#
+<span class='linenumber'> 217</span>      * @param   {jive.conc.observable}  emitter event emitting object to proxy events from
+<span class='linenumber'> 218</span>      * @param   {string}    type    type of event to listen for
+<span class='linenumber'> 219</span>      * @param   {string}    [newType]   type of the event that will be re-emitted
+<span class='linenumber'> 220</span>      * @param   {Function}  [listener]  callback function to register as an event listener
+<span class='linenumber'> 221</span>      * @returns {jive.conc.observable}  returns the receiver so that this method can be cascaded
+<span class='linenumber'> 222</span>      */</span><span class="WHIT">
+<span class='linenumber'> 223</span> </span><span class="WHIT">    </span><span class="NAME">klass.proxyListener</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="KEYW">function</span><span class="PUNC">(</span><span class="NAME">obj</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">event</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">proxiedEvent</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">listener</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='linenumber'> 224</span> </span><span class="WHIT">        </span><span class="KEYW">var</span><span class="WHIT"> </span><span class="NAME">that</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="KEYW">this</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 225</span> 
+<span class='linenumber'> 226</span> </span><span class="WHIT">        </span><span class="KEYW">if</span><span class="WHIT"> </span><span class="PUNC">(</span><span class="KEYW">typeof</span><span class="WHIT"> </span><span class="NAME">proxiedEvent</span><span class="WHIT"> </span><span class="PUNC">==</span><span class="WHIT"> </span><span class="STRN">'function'</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='linenumber'> 227</span> </span><span class="WHIT">            </span><span class="NAME">listener</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">proxiedEvent</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 228</span> </span><span class="WHIT">            </span><span class="NAME">proxiedEvent</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="KEYW">null</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 229</span> </span><span class="WHIT">        </span><span class="PUNC">}</span><span class="WHIT">
+<span class='linenumber'> 230</span> </span><span class="WHIT">        </span><span class="NAME">proxiedEvent</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">proxiedEvent</span><span class="WHIT"> </span><span class="PUNC">||</span><span class="WHIT"> </span><span class="NAME">event</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 231</span> 
+<span class='linenumber'> 232</span> </span><span class="WHIT">        </span><span class="KEYW">if</span><span class="WHIT"> </span><span class="PUNC">(</span><span class="NAME">listener</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='linenumber'> 233</span> </span><span class="WHIT">            </span><span class="NAME">obj.addListener</span><span class="PUNC">(</span><span class="NAME">event</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">listener</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 234</span> </span><span class="WHIT">        </span><span class="PUNC">}</span><span class="WHIT">
+<span class='linenumber'> 235</span> 
+<span class='linenumber'> 236</span> </span><span class="WHIT">        </span><span class="NAME">obj.addListener</span><span class="PUNC">(</span><span class="NAME">event</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="KEYW">function</span><span class="PUNC">(</span><span class="COMM">/* eventParams */</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='linenumber'> 237</span> </span><span class="WHIT">            </span><span class="KEYW">var</span><span class="WHIT"> </span><span class="NAME">eventParams</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">Array.prototype.slice.call</span><span class="PUNC">(</span><span class="NAME">arguments</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 238</span> </span><span class="WHIT">            </span><span class="NAME">eventParams.unshift</span><span class="PUNC">(</span><span class="NAME">proxiedEvent</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 239</span> </span><span class="WHIT">            </span><span class="NAME">that.emit.apply</span><span class="PUNC">(</span><span class="NAME">that</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">eventParams</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 240</span> </span><span class="WHIT">        </span><span class="PUNC">}</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 241</span> 
+<span class='linenumber'> 242</span> </span><span class="WHIT">        </span><span class="KEYW">return</span><span class="WHIT"> </span><span class="KEYW">this</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 243</span> </span><span class="WHIT">    </span><span class="PUNC">}</span><span class="WHIT">
+<span class='linenumber'> 244</span> </span><span class="PUNC">}</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 245</span> </span></pre></body></html>
