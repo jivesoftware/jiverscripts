@@ -1,0 +1,107 @@
+<html><head><meta http-equiv="content-type" content="text/html; charset=utf-8"> <link rel=stylesheet href="../../code.css" type="text/css"></head><body><pre><span class='linenumber'>   1</span> <span class="COMM">/*
+<span class='linenumber'>   2</span>  * Copyright 2010 Jive Software
+<span class='linenumber'>   3</span>  *
+<span class='linenumber'>   4</span>  * Licensed under the Apache License, Version 2.0 (the "License");
+<span class='linenumber'>   5</span>  * you may not use this file except in compliance with the License.
+<span class='linenumber'>   6</span>  * You may obtain a copy of the License at
+<span class='linenumber'>   7</span>  *
+<span class='linenumber'>   8</span>  *     http://www.apache.org/licenses/LICENSE-2.0
+<span class='linenumber'>   9</span>  *
+<span class='linenumber'>  10</span>  * Unless required by applicable law or agreed to in writing, software
+<span class='linenumber'>  11</span>  * distributed under the License is distributed on an "AS IS" BASIS,
+<span class='linenumber'>  12</span>  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+<span class='linenumber'>  13</span>  * See the License for the specific language governing permissions and
+<span class='linenumber'>  14</span>  * limitations under the License.
+<span class='linenumber'>  15</span>  */</span><span class="WHIT">
+<span class='linenumber'>  16</span> 
+<span class='linenumber'>  17</span> 
+<span class='linenumber'>  18</span> </span><span class="COMM">/*jslint laxbreak:true forin:true browser:true */</span><span class="WHIT">
+<span class='linenumber'>  19</span> </span><span class="COMM">/*extern jive */</span><span class="WHIT">
+<span class='linenumber'>  20</span> 
+<span class='linenumber'>  21</span> </span><span class="NAME">this.jive</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">this.jive</span><span class="WHIT"> </span><span class="PUNC">||</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="PUNC">}</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'>  22</span> </span><span class="NAME">jive.oo</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">jive.oo</span><span class="WHIT"> </span><span class="PUNC">||</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="PUNC">}</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'>  23</span> 
+<span class='linenumber'>  24</span> </span><span class="COMM">/**
+<span class='linenumber'>  25</span>  * Function for renaming properties of a class.  It takes a map from old names
+<span class='linenumber'>  26</span>  * to new names and a class and returns a new class that is the same as the
+<span class='linenumber'>  27</span>  * original except that the given property names have been changed.
+<span class='linenumber'>  28</span>  *
+<span class='linenumber'>  29</span>  * For example, you may want to compose two classes that implement incompatible
+<span class='linenumber'>  30</span>  * definitions of the `init()` method.  You can use `jive.oo.resolve()` to
+<span class='linenumber'>  31</span>  * rename those `init()` methods before composing the classes so that a
+<span class='linenumber'>  32</span>  * subclass of the composed classes can call the `init()` methods of both of
+<span class='linenumber'>  33</span>  * its parents:
+<span class='linenumber'>  34</span>  *
+<span class='linenumber'>  35</span>  *     var Spork = jive.oo.compose(
+<span class='linenumber'>  36</span>  *         jive.oo.resolve({ init: 'initSpoon' }, Spoon),
+<span class='linenumber'>  37</span>  *         jive.oo.resolve({ init: 'initFork' }, Fork)
+<span class='linenumber'>  38</span>  *     ).extend(function(protect) {
+<span class='linenumber'>  39</span>  *         protect.init = function(spoonOpts, forkOpts) {
+<span class='linenumber'>  40</span>  *             this.initSpoon(spoonOpts);
+<span class='linenumber'>  41</span>  *             this.initFork(forkOpts);
+<span class='linenumber'>  42</span>  *         };
+<span class='linenumber'>  43</span>  *     });
+<span class='linenumber'>  44</span>  *
+<span class='linenumber'>  45</span>  * You can also use `jive.oo.resolve()` to exclude members from a class by giving
+<span class='linenumber'>  46</span>  * a value of `undefined` instead of a new name.
+<span class='linenumber'>  47</span>  *
+<span class='linenumber'>  48</span>  * This method was inspired by a similar method in [traits.js][].
+<span class='linenumber'>  49</span>  *
+<span class='linenumber'>  50</span>  * [traits.js]: http://www.traitsjs.org/  (traits.js)
+<span class='linenumber'>  51</span>  *
+<span class='linenumber'>  52</span>  * @function
+<span class='linenumber'>  53</span>  * @param {Object} resolutions map of old names to new names (strings to strings)
+<span class='linenumber'>  54</span>  * @param {jive.oo.Class} klass a class to modify
+<span class='linenumber'>  55</span>  * @returns {jive.oo.Class} a new class that has been modified appropriately
+<span class='linenumber'>  56</span>  * @requires jive.oo.Class
+<span class='linenumber'>  57</span>  */</span><span class="WHIT">
+<span class='linenumber'>  58</span> </span><span class="NAME">jive.oo.resolve</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="KEYW">function</span><span class="PUNC">(</span><span class="NAME">resolutions</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">klass</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='linenumber'>  59</span> </span><span class="WHIT">    </span><span class="KEYW">var</span><span class="WHIT"> </span><span class="NAME">undefined</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'>  60</span> 
+<span class='linenumber'>  61</span> </span><span class="WHIT">    </span><span class="KEYW">return</span><span class="WHIT"> </span><span class="NAME">klass.superclass.extend</span><span class="PUNC">(</span><span class="KEYW">function</span><span class="PUNC">(</span><span class="NAME">protect</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='linenumber'>  62</span> </span><span class="WHIT">        </span><span class="KEYW">var</span><span class="WHIT"> </span><span class="NAME">definition</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">klass.definition</span><span class="WHIT">
+<span class='linenumber'>  63</span> </span><span class="WHIT">          </span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">public</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="KEYW">this</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'>  64</span> 
+<span class='linenumber'>  65</span> </span><span class="WHIT">        </span><span class="KEYW">if</span><span class="WHIT"> </span><span class="PUNC">(</span><span class="KEYW">typeof</span><span class="WHIT"> </span><span class="NAME">definition</span><span class="WHIT"> </span><span class="PUNC">==</span><span class="WHIT"> </span><span class="STRN">'function'</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='linenumber'>  66</span> </span><span class="WHIT">            </span><span class="NAME">definition.call</span><span class="PUNC">(</span><span class="NAME">public</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">protect</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'>  67</span> </span><span class="WHIT">        </span><span class="PUNC">}</span><span class="WHIT"> </span><span class="KEYW">else</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='linenumber'>  68</span> </span><span class="WHIT">            </span><span class="KEYW">for</span><span class="WHIT"> </span><span class="PUNC">(</span><span class="NAME">name</span><span class="WHIT"> </span><span class="KEYW">in</span><span class="WHIT"> </span><span class="NAME">definition</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='linenumber'>  69</span> </span><span class="WHIT">                </span><span class="KEYW">if</span><span class="WHIT"> </span><span class="PUNC">(</span><span class="NAME">definition.hasOwnProperty</span><span class="PUNC">(</span><span class="NAME">name</span><span class="PUNC">)</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='linenumber'>  70</span> </span><span class="WHIT">                    </span><span class="NAME">public</span><span class="PUNC">[</span><span class="NAME">name</span><span class="PUNC">]</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">definition</span><span class="PUNC">[</span><span class="NAME">name</span><span class="PUNC">]</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'>  71</span> </span><span class="WHIT">                </span><span class="PUNC">}</span><span class="WHIT">
+<span class='linenumber'>  72</span> </span><span class="WHIT">            </span><span class="PUNC">}</span><span class="WHIT">
+<span class='linenumber'>  73</span> </span><span class="WHIT">        </span><span class="PUNC">}</span><span class="WHIT">
+<span class='linenumber'>  74</span> 
+<span class='linenumber'>  75</span> </span><span class="WHIT">        </span><span class="NAME">exclude</span><span class="PUNC">(</span><span class="NAME">public</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'>  76</span> </span><span class="WHIT">        </span><span class="NAME">exclude</span><span class="PUNC">(</span><span class="NAME">protect</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'>  77</span> 
+<span class='linenumber'>  78</span> </span><span class="WHIT">        </span><span class="NAME">rename</span><span class="PUNC">(</span><span class="NAME">public</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'>  79</span> </span><span class="WHIT">        </span><span class="NAME">rename</span><span class="PUNC">(</span><span class="NAME">protect</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'>  80</span> 
+<span class='linenumber'>  81</span> </span><span class="WHIT">        </span><span class="KEYW">function</span><span class="WHIT"> </span><span class="NAME">exclude</span><span class="PUNC">(</span><span class="NAME">def</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='linenumber'>  82</span> </span><span class="WHIT">            </span><span class="NAME">eachProp</span><span class="PUNC">(</span><span class="NAME">def</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="KEYW">function</span><span class="PUNC">(</span><span class="NAME">name</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='linenumber'>  83</span> </span><span class="WHIT">                </span><span class="KEYW">if</span><span class="WHIT"> </span><span class="PUNC">(</span><span class="NAME">resolutions</span><span class="PUNC">[</span><span class="NAME">name</span><span class="PUNC">]</span><span class="WHIT"> </span><span class="PUNC">===</span><span class="WHIT"> </span><span class="NAME">undefined</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='linenumber'>  84</span> </span><span class="WHIT">                    </span><span class="KEYW">delete</span><span class="WHIT"> </span><span class="NAME">def</span><span class="PUNC">[</span><span class="NAME">name</span><span class="PUNC">]</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'>  85</span> </span><span class="WHIT">                </span><span class="PUNC">}</span><span class="WHIT">
+<span class='linenumber'>  86</span> </span><span class="WHIT">            </span><span class="PUNC">}</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'>  87</span> </span><span class="WHIT">        </span><span class="PUNC">}</span><span class="WHIT">
+<span class='linenumber'>  88</span> 
+<span class='linenumber'>  89</span> </span><span class="WHIT">        </span><span class="KEYW">function</span><span class="WHIT"> </span><span class="NAME">rename</span><span class="PUNC">(</span><span class="NAME">def</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='linenumber'>  90</span> </span><span class="WHIT">            </span><span class="NAME">eachProp</span><span class="PUNC">(</span><span class="NAME">def</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="KEYW">function</span><span class="PUNC">(</span><span class="NAME">name</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='linenumber'>  91</span> </span><span class="WHIT">                </span><span class="KEYW">if</span><span class="WHIT"> </span><span class="PUNC">(</span><span class="NAME">resolutions</span><span class="PUNC">[</span><span class="NAME">name</span><span class="PUNC">]</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='linenumber'>  92</span> </span><span class="WHIT">                    </span><span class="NAME">def</span><span class="PUNC">[</span><span class="NAME">resolutions</span><span class="PUNC">[</span><span class="NAME">name</span><span class="PUNC">]</span><span class="PUNC">]</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">def</span><span class="PUNC">[</span><span class="NAME">name</span><span class="PUNC">]</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'>  93</span> </span><span class="WHIT">                    </span><span class="KEYW">delete</span><span class="WHIT"> </span><span class="NAME">def</span><span class="PUNC">[</span><span class="NAME">name</span><span class="PUNC">]</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'>  94</span> </span><span class="WHIT">                </span><span class="PUNC">}</span><span class="WHIT">
+<span class='linenumber'>  95</span> </span><span class="WHIT">            </span><span class="PUNC">}</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'>  96</span> </span><span class="WHIT">        </span><span class="PUNC">}</span><span class="WHIT">
+<span class='linenumber'>  97</span> 
+<span class='linenumber'>  98</span> </span><span class="WHIT">        </span><span class="KEYW">function</span><span class="WHIT"> </span><span class="NAME">eachProp</span><span class="PUNC">(</span><span class="NAME">def</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">callback</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='linenumber'>  99</span> </span><span class="WHIT">            </span><span class="KEYW">for</span><span class="WHIT"> </span><span class="PUNC">(</span><span class="KEYW">var</span><span class="WHIT"> </span><span class="NAME">name</span><span class="WHIT"> </span><span class="KEYW">in</span><span class="WHIT"> </span><span class="NAME">def</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='linenumber'> 100</span> </span><span class="WHIT">                </span><span class="KEYW">if</span><span class="WHIT"> </span><span class="PUNC">(</span><span class="NAME">resolutions.hasOwnProperty</span><span class="PUNC">(</span><span class="NAME">name</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">&&</span><span class="WHIT"> </span><span class="NAME">def.hasOwnProperty</span><span class="PUNC">(</span><span class="NAME">name</span><span class="PUNC">)</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='linenumber'> 101</span> </span><span class="WHIT">                    </span><span class="NAME">callback</span><span class="PUNC">(</span><span class="NAME">name</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 102</span> </span><span class="WHIT">                </span><span class="PUNC">}</span><span class="WHIT">
+<span class='linenumber'> 103</span> </span><span class="WHIT">            </span><span class="PUNC">}</span><span class="WHIT">
+<span class='linenumber'> 104</span> </span><span class="WHIT">        </span><span class="PUNC">}</span><span class="WHIT">
+<span class='linenumber'> 105</span> </span><span class="WHIT">    </span><span class="PUNC">}</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 106</span> </span><span class="PUNC">}</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 107</span> </span></pre></body></html>
