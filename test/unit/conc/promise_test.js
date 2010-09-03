@@ -289,3 +289,30 @@ test("timeout() returns the receiver so that calls can be chained if called with
     ok( this.promise.timeout(10000) === this.promise,
        "promise.timeout(n) === promise" );
 });
+
+asyncTest("emits a 'complete' event after emitting a 'success' event", 1, function() {
+    this.promise.always(function() {
+        ok( true, "the 'complete' event handler was called" );
+        start();
+    });
+
+    this.promise.emitSuccess('foo');
+});
+
+asyncTest("emits a 'complete' event after emitting an 'error' event", 1, function() {
+    this.promise.always(function() {
+        ok( true, "the 'complete' event handler was called" );
+        start();
+    });
+
+    this.promise.emitError('bar');
+});
+
+asyncTest("emits a 'complete' event after emitting a 'cancel' event", 1, function() {
+    this.promise.always(function() {
+        ok( true, "the 'complete' event handler was called" );
+        start();
+    });
+
+    this.promise.cancel();
+});

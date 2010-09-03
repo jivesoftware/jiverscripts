@@ -143,6 +143,23 @@ jive.conc.Promise = function() {
     };
 
     /**
+     * Adds a 'complete' callback to the promise.  The promise will emit
+     * 'complete' after it is fulfilled with a success or an error or it is
+     * cancelled.
+     *
+     * This can be useful if you want to do something like display a spinner
+     * when an ajax call is made and to hide that spinner when the call
+     * finishes regardless of whether the response was a success.
+     *
+     * @param {Function}    listener    function to be called when the promise emits 'cancel'
+     * @returns {jive.conc.Promise} returns the receiver so that this method can be cascaded
+     */
+    this.always = function(listener) {
+        this.addListener('complete', listener);
+        return this;
+    };
+
+    /**
      * Causes the promise to emit 'success'.  Any arguments given will be
      * passed to callbacks for the promise's 'success' event.
      *
@@ -156,6 +173,7 @@ jive.conc.Promise = function() {
         if (!hasFired) {
             hasFired = true;
             this.emit.apply(this, ['success'].concat(eventArgs));
+            this.emit('complete');
         }
     };
 
@@ -173,6 +191,7 @@ jive.conc.Promise = function() {
         if (!hasFired) {
             hasFired = true;
             this.emit.apply(this, ['error'].concat(eventArgs));
+            this.emit('complete');
         }
     };
 
@@ -182,6 +201,7 @@ jive.conc.Promise = function() {
     function emitCancel() {
         var eventArgs = Array.prototype.slice.call(arguments, 0);
         self.emit.apply(self, ['cancel'].concat(eventArgs));
+        self.emit('complete');
     };
 
     /**
@@ -208,15 +228,16 @@ jive.conc.Promise = function() {
     /**
      * Calling this method with a `delay` argument causes the timeout to abort
      * after the given length of time.  If the promise has not emitted some
-     * event by the time the timout expires then the promise will emit an
-     * 'error' event with a single argument of the form, `new Error('timout')`.
+     * event by the time the timeout expires then the promise will emit an
+     * 'error' event with a single argument of the form, `new
+     * Error('timeout')`.
      *
      * Calling `timeout()` with a `delay` argument a second time will cancel
      * the previous timeout and will start a new timeout.
      *
      * Calling `timeout()` with no arguments will have no side-effect but will
      * return the timeout that has already been set in milliseconds.  If no
-     * timeout has been set then calling `timout()` with no arguments will
+     * timeout has been set then calling `timeout()` with no arguments will
      * return `undefined`.
      *
      * @param {number}  [delay] time in milliseconds to wait before aborting the promise
