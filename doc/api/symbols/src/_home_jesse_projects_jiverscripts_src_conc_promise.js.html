@@ -15,7 +15,7 @@
 <span class='linenumber'>  15</span>  */</span><span class="WHIT">
 <span class='linenumber'>  16</span> 
 <span class='linenumber'>  17</span> </span><span class="COMM">/*jslint undef:true browser:true */</span><span class="WHIT">
-<span class='linenumber'>  18</span> </span><span class="COMM">/*extern jive */</span><span class="WHIT">
+<span class='linenumber'>  18</span> </span><span class="COMM">/*global jive */</span><span class="WHIT">
 <span class='linenumber'>  19</span> 
 <span class='linenumber'>  20</span> </span><span class="COMM">/**
 <span class='linenumber'>  21</span>  * Promises are objects that are used to reference the outcomes of asynchronous
@@ -151,7 +151,7 @@
 <span class='linenumber'> 151</span>      * when an ajax call is made and to hide that spinner when the call
 <span class='linenumber'> 152</span>      * finishes regardless of whether the response was a success.
 <span class='linenumber'> 153</span>      *
-<span class='linenumber'> 154</span>      * @param {Function}    listener    function to be called when the promise emits 'cancel'
+<span class='linenumber'> 154</span>      * @param {Function}    listener    function to be called when the promise emits 'complete'
 <span class='linenumber'> 155</span>      * @returns {jive.conc.Promise} returns the receiver so that this method can be cascaded
 <span class='linenumber'> 156</span>      */</span><span class="WHIT">
 <span class='linenumber'> 157</span> </span><span class="WHIT">    </span><span class="NAME">this.always</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="KEYW">function</span><span class="PUNC">(</span><span class="NAME">listener</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
@@ -202,7 +202,7 @@
 <span class='linenumber'> 202</span> </span><span class="WHIT">        </span><span class="KEYW">var</span><span class="WHIT"> </span><span class="NAME">eventArgs</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">Array.prototype.slice.call</span><span class="PUNC">(</span><span class="NAME">arguments</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NUMB">0</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
 <span class='linenumber'> 203</span> </span><span class="WHIT">        </span><span class="NAME">self.emit.apply</span><span class="PUNC">(</span><span class="NAME">self</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="PUNC">[</span><span class="STRN">'cancel'</span><span class="PUNC">]</span><span class="PUNC">.</span><span class="NAME">concat</span><span class="PUNC">(</span><span class="NAME">eventArgs</span><span class="PUNC">)</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
 <span class='linenumber'> 204</span> </span><span class="WHIT">        </span><span class="NAME">self.emit</span><span class="PUNC">(</span><span class="STRN">'complete'</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
-<span class='linenumber'> 205</span> </span><span class="WHIT">    </span><span class="PUNC">}</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 205</span> </span><span class="WHIT">    </span><span class="PUNC">}</span><span class="WHIT">
 <span class='linenumber'> 206</span> 
 <span class='linenumber'> 207</span> </span><span class="WHIT">    </span><span class="COMM">/**
 <span class='linenumber'> 208</span>      * Cancels the promise.  This causes the promise to emit 'cancel'.

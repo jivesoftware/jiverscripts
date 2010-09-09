@@ -15,7 +15,7 @@
  */
 
 /*jslint undef:true browser:true */
-/*extern jive */
+/*global jive */
 
 /**
  * Promises are objects that are used to reference the outcomes of asynchronous
@@ -151,7 +151,7 @@ jive.conc.Promise = function() {
      * when an ajax call is made and to hide that spinner when the call
      * finishes regardless of whether the response was a success.
      *
-     * @param {Function}    listener    function to be called when the promise emits 'cancel'
+     * @param {Function}    listener    function to be called when the promise emits 'complete'
      * @returns {jive.conc.Promise} returns the receiver so that this method can be cascaded
      */
     this.always = function(listener) {
@@ -202,7 +202,7 @@ jive.conc.Promise = function() {
         var eventArgs = Array.prototype.slice.call(arguments, 0);
         self.emit.apply(self, ['cancel'].concat(eventArgs));
         self.emit('complete');
-    };
+    }
 
     /**
      * Cancels the promise.  This causes the promise to emit 'cancel'.
