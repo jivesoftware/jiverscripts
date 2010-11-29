@@ -42,7 +42,7 @@ jive.conc.synchronize = (function() {
     }
     
     function isPromise(prop) {
-        return prop.addCallback && prop.addErrback && prop.addCancelback;
+        return prop && prop.addCallback && prop.addErrback && prop.addCancelback;
     }
 
     return function(obj) {
