@@ -308,11 +308,27 @@ asyncTest("emits a 'complete' event after emitting an 'error' event", 1, functio
     this.promise.emitError('bar');
 });
 
-asyncTest("emits a 'complete' event after emitting a 'cancel' event", 1, function() {
+asyncTest("does not emit a 'complete' event after emitting a 'cancel' event", 0, function() {
     this.promise.always(function() {
-        ok( true, "the 'complete' event handler was called" );
-        start();
+        ok( false, "the 'complete' event handler was called" );
     });
 
     this.promise.cancel();
+
+    setTimeout(function() {
+        start();
+    }, 10);
+});
+
+asyncTest("does not emit a 'complete' event after emitting a 'cancel' event even if emitSuccess() is called", 0, function() {
+    this.promise.always(function() {
+        ok( false, "the 'complete' event handler was called" );
+    });
+
+    this.promise.cancel();
+    this.promise.emitSuccess();
+
+    setTimeout(function() {
+        start();
+    }, 10);
 });

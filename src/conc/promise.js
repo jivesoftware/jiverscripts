@@ -201,7 +201,6 @@ jive.conc.Promise = function() {
     function emitCancel() {
         var eventArgs = Array.prototype.slice.call(arguments, 0);
         self.emit.apply(self, ['cancel'].concat(eventArgs));
-        self.emit('complete');
     }
 
     /**
@@ -221,6 +220,7 @@ jive.conc.Promise = function() {
             cancelled = true;
             this.removeListener('success');
             this.removeListener('error');
+            this.removeListener('complete');
             emitCancel();
         }
     };
