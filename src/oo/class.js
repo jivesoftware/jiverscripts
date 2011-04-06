@@ -69,40 +69,40 @@ jive.oo.Class.extend = (function(){
 
     // Create a new Class that inherits from this class
     return function extend(definition) {
-        var _super = this.protected || {}
+        var _super = this['protected'] || {}
           , name;
 
         // Instantiate a base class (but only create the instance,
         // don't run the init constructor)
-        initializing = true;
+        initializing  = true;
         var prototype = new this();
-        var public    = create(this.public || {});
-        var protected = create(_super);
-        initializing = false;
+        var pub       = create(this['public'] || {});
+        var protect   = create(_super);
+        initializing  = false;
 
         // Classes are defined by a given function.  Within the function body
         // properties assigned to `this` become public members and
         // properties assigned to the function's argument become protected
         // members.
         if (typeof definition == 'function') {
-            definition.call(public, protected);
+            definition.call(pub, protect);
         } else {
             // If an object is given all members of that object become public
             // members of the class.
             for (name in definition) {
                 if (definition.hasOwnProperty(name)) {
-                    public[name] = definition[name];
+                    pub[name] = definition[name];
                 }
             }
         }
 
         // Copy public properties onto the the class definition
-        for (name in public) {
-            if (public.hasOwnProperty(name)) {
-                if (typeof public[name] != 'function') {
+        for (name in pub) {
+            if (pub.hasOwnProperty(name)) {
+                if (typeof pub[name] != 'function') {
                     throw "Public members must be methods - public variables are not allowed: '"+ name +"'";
-                } else if (typeof protected[name] == 'undefined' || !protected.hasOwnProperty(name)) {
-                    protected[name] = public[name];
+                } else if (typeof protect[name] == 'undefined' || !protect.hasOwnProperty(name)) {
+                    protect[name] = pub[name];
                 } else {
                     throw "Public and protected properties with the same name are not allowed: '"+ name +"'";
                 }
@@ -110,12 +110,12 @@ jive.oo.Class.extend = (function(){
         }
 
         // Wrap methods that call `_super()`
-        for (name in protected) {
-            if (protected.hasOwnProperty(name) &&
-              typeof protected[name] == "function" &&
+        for (name in protect) {
+            if (protect.hasOwnProperty(name) &&
+              typeof protect[name] == "function" &&
               typeof _super[name] == "function" &&
-              fnTest.test(protected[name])) {
-                protected[name] = (function(name, fn){
+              fnTest.test(protect[name])) {
+                protect[name] = (function(name, fn){
                     return function() {
                         var tmp = this._super;
 
@@ -130,14 +130,15 @@ jive.oo.Class.extend = (function(){
 
                         return ret;
                     };
-                })(name, protected[name]);
+                })(name, protect[name]);
             }
         }
 
         // The dummy class constructor
         function Class() {
             var instance = this
-              , protectedInstance = create(Class.protected);
+              , name
+              , protectedInstance = create(Class['protected']);
 
             // Wrap public methods so that they run in the context of the
             // protected instance.
@@ -159,8 +160,8 @@ jive.oo.Class.extend = (function(){
                 }
             }
 
-            for (var name in Class.public) {
-                if (typeof Class.public[name] == 'function') {
+            for (name in Class['public']) {
+                if (typeof Class['public'][name] == 'function') {
                     instance[name] = proxy(name);
                 }
             }
@@ -174,10 +175,10 @@ jive.oo.Class.extend = (function(){
         }
 
         // Populate our constructed prototype object
-        Class.prototype  = prototype;
-        Class.public     = public;
-        Class.protected  = protected;
-        Class.definition = definition;
+        Class.prototype    = prototype;
+        Class['public']    = pub;
+        Class['protected'] = protect;
+        Class.definition   = definition;
 
         // Enforce the constructor to be what we expect
         Class.constructor = Class;
