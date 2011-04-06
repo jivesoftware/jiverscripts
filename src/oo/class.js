@@ -76,7 +76,6 @@ jive.oo.Class.extend = (function(){
         // don't run the init constructor)
         initializing  = true;
         var prototype = new this();
-        var pub       = create(this['public'] || {});
         var protect   = create(_super);
         initializing  = false;
 
@@ -85,24 +84,24 @@ jive.oo.Class.extend = (function(){
         // properties assigned to the function's argument become protected
         // members.
         if (typeof definition == 'function') {
-            definition.call(pub, protect);
+            definition.call(prototype, protect);
         } else {
             // If an object is given all members of that object become public
             // members of the class.
             for (name in definition) {
                 if (definition.hasOwnProperty(name)) {
-                    pub[name] = definition[name];
+                    prototype[name] = definition[name];
                 }
             }
         }
 
         // Copy public properties onto the the class definition
-        for (name in pub) {
-            if (pub.hasOwnProperty(name)) {
-                if (typeof pub[name] != 'function') {
+        for (name in prototype) {
+            if (prototype.hasOwnProperty(name)) {
+                if (typeof prototype[name] != 'function') {
                     throw "Public members must be methods - public variables are not allowed: '"+ name +"'";
                 } else if (typeof protect[name] == 'undefined' || !protect.hasOwnProperty(name)) {
-                    protect[name] = pub[name];
+                    protect[name] = prototype[name];
                 } else {
                     throw "Public and protected properties with the same name are not allowed: '"+ name +"'";
                 }
@@ -160,15 +159,22 @@ jive.oo.Class.extend = (function(){
                 }
             }
 
-            for (name in Class['public']) {
-                if (typeof Class['public'][name] == 'function') {
-                    instance[name] = proxy(name);
+            if (!initializing) {
+                // Replace public methods with proxies to the protected
+                // object.  But skip this step if not initializing to
+                // preserve the original method definitions in the
+                // prototype chain.
+                for (name in Class.prototype) {
+                    if (typeof Class.prototype[name] == 'function' &&
+                        typeof protectedInstance[name] == 'function') {
+                        instance[name] = proxy(name);
+                    }
                 }
-            }
 
-            // All construction is actually done in the init method
-            if ( !initializing && protectedInstance.init ) {
-                protectedInstance.init.apply(protectedInstance, arguments);
+                // All construction is actually done in the init method
+                if (protectedInstance.init) {
+                    protectedInstance.init.apply(protectedInstance, arguments);
+                }
             }
 
             return instance;
@@ -176,7 +182,6 @@ jive.oo.Class.extend = (function(){
 
         // Populate our constructed prototype object
         Class.prototype    = prototype;
-        Class['public']    = pub;
         Class['protected'] = protect;
         Class.definition   = definition;
 

@@ -201,7 +201,7 @@ test("stateful methods in a superclass affect the state of an instance", 1, func
     var obj = new subklass();
     obj.inc();
     obj.inc();
-    ok( obj.getCount() == 2, "the count of obj is 2" );
+    equal( obj.getCount(), 2, "the count of obj is 2" );
 });
 
 test("classes have a 'superclass' property", 1, function() {
