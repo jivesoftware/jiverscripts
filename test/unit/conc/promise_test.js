@@ -332,3 +332,52 @@ asyncTest("does not emit a 'complete' event after emitting a 'cancel' event even
         start();
     }, 10);
 });
+
+asyncTest("exposes then() method for binding success callbacks", 1, function() {
+    this.promise.then(function() {
+        ok( true, "the success handler was called" );
+        start();
+    });
+    this.promise.emitSuccess();
+});
+
+asyncTest("accepts error callbacks via the then() method", 1, function() {
+    this.promise.then(null, function() {
+        ok( true, "the error handler was called" );
+        start();
+    });
+    this.promise.emitError();
+});
+
+asyncTest("returns a new promise from the then() method", 1, function() {
+    var newPromise = this.promise.then(function(v) {
+        return v + 1;
+    });
+    newPromise.then(function(v) {
+        equal( v, 3, "new promise resolved with value 3" );
+        start();
+    });
+    this.promise.emitSuccess(2);
+});
+
+asyncTest("forwards errors to new promise created by then()", 1, function() {
+    var newPromise = this.promise.then(function(v) {
+        return v + 1;
+    });
+    newPromise.then(null, function(msg) {
+        equal( msg, "error message", "new promise fails and gets error message" );
+        start();
+    });
+    this.promise.emitError("error message");
+});
+
+asyncTest("fails new promise from then() when success callback throws an error", 1, function() {
+    var newPromise = this.promise.then(function(v) {
+        throw "synthetic error";
+    });
+    newPromise.then(null, function(msg) {
+        ok( true, "new promise failed" );
+        start();
+    });
+    this.promise.emitSuccess();
+});

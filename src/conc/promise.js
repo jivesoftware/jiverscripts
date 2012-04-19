@@ -143,6 +143,45 @@ jive.conc.Promise = function() {
     };
 
     /**
+     * Accepts an optional success callback and an optional error
+     * callback and binds both.  This method provides compliance with
+     * the [Promises/A][] CommonJS proposal.
+     *
+     * [Promises/A]: http://wiki.commonjs.org/wiki/Promises/A
+     *
+     * @param {Function} [fulfilledHandler] function to be called when the promise emits 'success'
+     * @param {Function} [errorHandler] function to be called when the promise emits 'error'
+     * @returns {jive.conc.Promise} returns a new promise that resolves
+     * with the return value of the given success callback
+     */
+    this.then = function(fulfilledHandler, errorHandler) {
+        var newPromise = new jive.conc.Promise();
+
+        this.addCallback(function() {
+            var result;
+            if (typeof fulfilledHandler === 'function') {
+                try {
+                    result = fulfilledHandler.apply(null, arguments);
+                    newPromise.emitSuccess(result);
+                } catch(e) {
+                    newPromise.emitError(e);
+                }
+            } else {
+                newPromise.emitSuccess.apply(newPromise, arguments);
+            }
+        });
+
+        if (typeof errorHandler === 'function') {
+            this.addErrback(errorHandler);
+        }
+        this.addErrback(function() {
+            newPromise.emitError.apply(newPromise, arguments);
+        });
+
+        return newPromise;
+    };
+
+    /**
      * Adds a 'complete' callback to the promise.  The promise will emit
      * 'complete' after it is fulfilled with a success or an error or it is
      * cancelled.
