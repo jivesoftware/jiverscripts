@@ -143,126 +143,165 @@
 <span class='linenumber'> 143</span> </span><span class="WHIT">    </span><span class="PUNC">}</span><span class="PUNC">;</span><span class="WHIT">
 <span class='linenumber'> 144</span> 
 <span class='linenumber'> 145</span> </span><span class="WHIT">    </span><span class="COMM">/**
-<span class='linenumber'> 146</span>      * Adds a 'complete' callback to the promise.  The promise will emit
-<span class='linenumber'> 147</span>      * 'complete' after it is fulfilled with a success or an error or it is
-<span class='linenumber'> 148</span>      * cancelled.
+<span class='linenumber'> 146</span>      * Accepts an optional success callback and an optional error
+<span class='linenumber'> 147</span>      * callback and binds both.  This method provides compliance with
+<span class='linenumber'> 148</span>      * the [Promises/A][] CommonJS proposal.
 <span class='linenumber'> 149</span>      *
-<span class='linenumber'> 150</span>      * This can be useful if you want to do something like display a spinner
-<span class='linenumber'> 151</span>      * when an ajax call is made and to hide that spinner when the call
-<span class='linenumber'> 152</span>      * finishes regardless of whether the response was a success.
-<span class='linenumber'> 153</span>      *
-<span class='linenumber'> 154</span>      * @param {Function}    listener    function to be called when the promise emits 'complete'
-<span class='linenumber'> 155</span>      * @returns {jive.conc.Promise} returns the receiver so that this method can be cascaded
+<span class='linenumber'> 150</span>      * [Promises/A]: http://wiki.commonjs.org/wiki/Promises/A
+<span class='linenumber'> 151</span>      *
+<span class='linenumber'> 152</span>      * @param {Function} [fulfilledHandler] function to be called when the promise emits 'success'
+<span class='linenumber'> 153</span>      * @param {Function} [errorHandler] function to be called when the promise emits 'error'
+<span class='linenumber'> 154</span>      * @returns {jive.conc.Promise} returns a new promise that resolves
+<span class='linenumber'> 155</span>      * with the return value of the given success callback
 <span class='linenumber'> 156</span>      */</span><span class="WHIT">
-<span class='linenumber'> 157</span> </span><span class="WHIT">    </span><span class="NAME">this.always</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="KEYW">function</span><span class="PUNC">(</span><span class="NAME">listener</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
-<span class='linenumber'> 158</span> </span><span class="WHIT">        </span><span class="NAME">this.addListener</span><span class="PUNC">(</span><span class="STRN">'complete'</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">listener</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
-<span class='linenumber'> 159</span> </span><span class="WHIT">        </span><span class="KEYW">return</span><span class="WHIT"> </span><span class="KEYW">this</span><span class="PUNC">;</span><span class="WHIT">
-<span class='linenumber'> 160</span> </span><span class="WHIT">    </span><span class="PUNC">}</span><span class="PUNC">;</span><span class="WHIT">
-<span class='linenumber'> 161</span> 
-<span class='linenumber'> 162</span> </span><span class="WHIT">    </span><span class="COMM">/**
-<span class='linenumber'> 163</span>      * Causes the promise to emit 'success'.  Any arguments given will be
-<span class='linenumber'> 164</span>      * passed to callbacks for the promise's 'success' event.
-<span class='linenumber'> 165</span>      *
-<span class='linenumber'> 166</span>      * Calling this method prevents the promise from emitting any further
-<span class='linenumber'> 167</span>      * events.
-<span class='linenumber'> 168</span>      *
-<span class='linenumber'> 169</span>      * @param {...any}  [eventArgs] arguments to be passed to 'success' listeners
-<span class='linenumber'> 170</span>      */</span><span class="WHIT">
-<span class='linenumber'> 171</span> </span><span class="WHIT">    </span><span class="NAME">this.emitSuccess</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="KEYW">function</span><span class="PUNC">(</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
-<span class='linenumber'> 172</span> </span><span class="WHIT">        </span><span class="KEYW">var</span><span class="WHIT"> </span><span class="NAME">eventArgs</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">Array.prototype.slice.call</span><span class="PUNC">(</span><span class="NAME">arguments</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NUMB">0</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
-<span class='linenumber'> 173</span> </span><span class="WHIT">        </span><span class="KEYW">if</span><span class="WHIT"> </span><span class="PUNC">(</span><span class="PUNC">!</span><span class="NAME">hasFired</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
-<span class='linenumber'> 174</span> </span><span class="WHIT">            </span><span class="NAME">hasFired</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="KEYW">true</span><span class="PUNC">;</span><span class="WHIT">
-<span class='linenumber'> 175</span> </span><span class="WHIT">            </span><span class="NAME">this.emit.apply</span><span class="PUNC">(</span><span class="KEYW">this</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="PUNC">[</span><span class="STRN">'success'</span><span class="PUNC">]</span><span class="PUNC">.</span><span class="NAME">concat</span><span class="PUNC">(</span><span class="NAME">eventArgs</span><span class="PUNC">)</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
-<span class='linenumber'> 176</span> </span><span class="WHIT">            </span><span class="NAME">this.emit</span><span class="PUNC">(</span><span class="STRN">'complete'</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
-<span class='linenumber'> 177</span> </span><span class="WHIT">        </span><span class="PUNC">}</span><span class="WHIT">
-<span class='linenumber'> 178</span> </span><span class="WHIT">    </span><span class="PUNC">}</span><span class="PUNC">;</span><span class="WHIT">
-<span class='linenumber'> 179</span> 
-<span class='linenumber'> 180</span> </span><span class="WHIT">    </span><span class="COMM">/**
-<span class='linenumber'> 181</span>      * Causes the promise to emit 'error'.  Any arguments given will be
-<span class='linenumber'> 182</span>      * passed to callbacks for the promise's 'error' event.
-<span class='linenumber'> 183</span>      *
-<span class='linenumber'> 184</span>      * Calling this method prevents the promise from emitting any further
-<span class='linenumber'> 185</span>      * events.
-<span class='linenumber'> 186</span>      *
-<span class='linenumber'> 187</span>      * @param {...any} [eventArgs] arguments to be passed to 'error' listeners
-<span class='linenumber'> 188</span>      */</span><span class="WHIT">
-<span class='linenumber'> 189</span> </span><span class="WHIT">    </span><span class="NAME">this.emitError</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="KEYW">function</span><span class="PUNC">(</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
-<span class='linenumber'> 190</span> </span><span class="WHIT">        </span><span class="KEYW">var</span><span class="WHIT"> </span><span class="NAME">eventArgs</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">Array.prototype.slice.call</span><span class="PUNC">(</span><span class="NAME">arguments</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NUMB">0</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
-<span class='linenumber'> 191</span> </span><span class="WHIT">        </span><span class="KEYW">if</span><span class="WHIT"> </span><span class="PUNC">(</span><span class="PUNC">!</span><span class="NAME">hasFired</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
-<span class='linenumber'> 192</span> </span><span class="WHIT">            </span><span class="NAME">hasFired</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="KEYW">true</span><span class="PUNC">;</span><span class="WHIT">
-<span class='linenumber'> 193</span> </span><span class="WHIT">            </span><span class="NAME">this.emit.apply</span><span class="PUNC">(</span><span class="KEYW">this</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="PUNC">[</span><span class="STRN">'error'</span><span class="PUNC">]</span><span class="PUNC">.</span><span class="NAME">concat</span><span class="PUNC">(</span><span class="NAME">eventArgs</span><span class="PUNC">)</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
-<span class='linenumber'> 194</span> </span><span class="WHIT">            </span><span class="NAME">this.emit</span><span class="PUNC">(</span><span class="STRN">'complete'</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
-<span class='linenumber'> 195</span> </span><span class="WHIT">        </span><span class="PUNC">}</span><span class="WHIT">
-<span class='linenumber'> 196</span> </span><span class="WHIT">    </span><span class="PUNC">}</span><span class="PUNC">;</span><span class="WHIT">
-<span class='linenumber'> 197</span> 
-<span class='linenumber'> 198</span> </span><span class="WHIT">    </span><span class="COMM">/**
-<span class='linenumber'> 199</span>      * @private
-<span class='linenumber'> 200</span>      */</span><span class="WHIT">
-<span class='linenumber'> 201</span> </span><span class="WHIT">    </span><span class="KEYW">function</span><span class="WHIT"> </span><span class="NAME">emitCancel</span><span class="PUNC">(</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
-<span class='linenumber'> 202</span> </span><span class="WHIT">        </span><span class="KEYW">var</span><span class="WHIT"> </span><span class="NAME">eventArgs</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">Array.prototype.slice.call</span><span class="PUNC">(</span><span class="NAME">arguments</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NUMB">0</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
-<span class='linenumber'> 203</span> </span><span class="WHIT">        </span><span class="NAME">self.emit.apply</span><span class="PUNC">(</span><span class="NAME">self</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="PUNC">[</span><span class="STRN">'cancel'</span><span class="PUNC">]</span><span class="PUNC">.</span><span class="NAME">concat</span><span class="PUNC">(</span><span class="NAME">eventArgs</span><span class="PUNC">)</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
-<span class='linenumber'> 204</span> </span><span class="WHIT">        </span><span class="NAME">self.emit</span><span class="PUNC">(</span><span class="STRN">'complete'</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
-<span class='linenumber'> 205</span> </span><span class="WHIT">    </span><span class="PUNC">}</span><span class="WHIT">
-<span class='linenumber'> 206</span> 
-<span class='linenumber'> 207</span> </span><span class="WHIT">    </span><span class="COMM">/**
-<span class='linenumber'> 208</span>      * Cancels the promise.  This causes the promise to emit 'cancel'.
-<span class='linenumber'> 209</span>      *
-<span class='linenumber'> 210</span>      * In most cases the class or function that creates a promise will send
-<span class='linenumber'> 211</span>      * messages through the promise while callers listen for events.  However
-<span class='linenumber'> 212</span>      * with 'cancel' it may be useful to do the reverse: the creator of the
-<span class='linenumber'> 213</span>      * promise could abort some long running operation when a caller cancels
-<span class='linenumber'> 214</span>      * the promise.
-<span class='linenumber'> 215</span>      *
-<span class='linenumber'> 216</span>      * Calling this method prevents the promise from emitting any further
-<span class='linenumber'> 217</span>      * events.
-<span class='linenumber'> 218</span>      */</span><span class="WHIT">
-<span class='linenumber'> 219</span> </span><span class="WHIT">    </span><span class="NAME">this.cancel</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="KEYW">function</span><span class="PUNC">(</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
-<span class='linenumber'> 220</span> </span><span class="WHIT">        </span><span class="KEYW">if</span><span class="WHIT"> </span><span class="PUNC">(</span><span class="PUNC">!</span><span class="NAME">cancelled</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
-<span class='linenumber'> 221</span> </span><span class="WHIT">            </span><span class="NAME">cancelled</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="KEYW">true</span><span class="PUNC">;</span><span class="WHIT">
-<span class='linenumber'> 222</span> </span><span class="WHIT">            </span><span class="NAME">this.removeListener</span><span class="PUNC">(</span><span class="STRN">'success'</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
-<span class='linenumber'> 223</span> </span><span class="WHIT">            </span><span class="NAME">this.removeListener</span><span class="PUNC">(</span><span class="STRN">'error'</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
-<span class='linenumber'> 224</span> </span><span class="WHIT">            </span><span class="NAME">emitCancel</span><span class="PUNC">(</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
-<span class='linenumber'> 225</span> </span><span class="WHIT">        </span><span class="PUNC">}</span><span class="WHIT">
-<span class='linenumber'> 226</span> </span><span class="WHIT">    </span><span class="PUNC">}</span><span class="PUNC">;</span><span class="WHIT">
-<span class='linenumber'> 227</span> 
-<span class='linenumber'> 228</span> </span><span class="WHIT">    </span><span class="COMM">/**
-<span class='linenumber'> 229</span>      * Calling this method with a `delay` argument causes the timeout to abort
-<span class='linenumber'> 230</span>      * after the given length of time.  If the promise has not emitted some
-<span class='linenumber'> 231</span>      * event by the time the timeout expires then the promise will emit an
-<span class='linenumber'> 232</span>      * 'error' event with a single argument of the form, `new
-<span class='linenumber'> 233</span>      * Error('timeout')`.
-<span class='linenumber'> 234</span>      *
-<span class='linenumber'> 235</span>      * Calling `timeout()` with a `delay` argument a second time will cancel
-<span class='linenumber'> 236</span>      * the previous timeout and will start a new timeout.
-<span class='linenumber'> 237</span>      *
-<span class='linenumber'> 238</span>      * Calling `timeout()` with no arguments will have no side-effect but will
-<span class='linenumber'> 239</span>      * return the timeout that has already been set in milliseconds.  If no
-<span class='linenumber'> 240</span>      * timeout has been set then calling `timeout()` with no arguments will
-<span class='linenumber'> 241</span>      * return `undefined`.
-<span class='linenumber'> 242</span>      *
-<span class='linenumber'> 243</span>      * @param {number}  [delay] time in milliseconds to wait before aborting the promise
-<span class='linenumber'> 244</span>      * @returns {number}    Returns the currently set timeout delay if there is:
-<span class='linenumber'> 245</span>      * one.  Otherwise returns the receiver.
-<span class='linenumber'> 246</span>      */</span><span class="WHIT">
-<span class='linenumber'> 247</span> </span><span class="WHIT">    </span><span class="NAME">this.timeout</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="KEYW">function</span><span class="PUNC">(</span><span class="NAME">timeout</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
-<span class='linenumber'> 248</span> </span><span class="WHIT">        </span><span class="KEYW">if</span><span class="WHIT"> </span><span class="PUNC">(</span><span class="KEYW">typeof</span><span class="WHIT"> </span><span class="NAME">timeout</span><span class="WHIT"> </span><span class="PUNC">==</span><span class="WHIT"> </span><span class="STRN">'undefined'</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
-<span class='linenumber'> 249</span> </span><span class="WHIT">            </span><span class="KEYW">return</span><span class="WHIT"> </span><span class="NAME">timeoutDuration</span><span class="PUNC">;</span><span class="WHIT">
-<span class='linenumber'> 250</span> </span><span class="WHIT">        </span><span class="PUNC">}</span><span class="WHIT">
-<span class='linenumber'> 251</span> 
-<span class='linenumber'> 252</span> </span><span class="WHIT">        </span><span class="NAME">timeoutDuration</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">timeout</span><span class="PUNC">;</span><span class="WHIT">
-<span class='linenumber'> 253</span> </span><span class="WHIT">        </span><span class="KEYW">if</span><span class="WHIT"> </span><span class="PUNC">(</span><span class="NAME">timer</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
-<span class='linenumber'> 254</span> </span><span class="WHIT">            </span><span class="NAME">clearTimeout</span><span class="PUNC">(</span><span class="NAME">timer</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
-<span class='linenumber'> 255</span> </span><span class="WHIT">            </span><span class="NAME">timer</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="KEYW">null</span><span class="PUNC">;</span><span class="WHIT">
-<span class='linenumber'> 256</span> </span><span class="WHIT">        </span><span class="PUNC">}</span><span class="WHIT">
-<span class='linenumber'> 257</span> 
-<span class='linenumber'> 258</span> </span><span class="WHIT">        </span><span class="NAME">timer</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">setTimeout</span><span class="PUNC">(</span><span class="KEYW">function</span><span class="PUNC">(</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
-<span class='linenumber'> 259</span> </span><span class="WHIT">            </span><span class="NAME">timer</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="KEYW">null</span><span class="PUNC">;</span><span class="WHIT">
-<span class='linenumber'> 260</span> </span><span class="WHIT">            </span><span class="KEYW">if</span><span class="WHIT"> </span><span class="PUNC">(</span><span class="PUNC">!</span><span class="NAME">hasFired</span><span class="WHIT"> </span><span class="PUNC">&&</span><span class="WHIT"> </span><span class="PUNC">!</span><span class="NAME">cancelled</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
-<span class='linenumber'> 261</span> </span><span class="WHIT">                </span><span class="NAME">self.emitError</span><span class="PUNC">(</span><span class="KEYW">new</span><span class="WHIT"> </span><span class="NAME">Error</span><span class="PUNC">(</span><span class="STRN">'timeout'</span><span class="PUNC">)</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
-<span class='linenumber'> 262</span> </span><span class="WHIT">            </span><span class="PUNC">}</span><span class="WHIT">
-<span class='linenumber'> 263</span> </span><span class="WHIT">        </span><span class="PUNC">}</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">timeoutDuration</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
-<span class='linenumber'> 264</span> 
-<span class='linenumber'> 265</span> </span><span class="WHIT">        </span><span class="KEYW">return</span><span class="WHIT"> </span><span class="KEYW">this</span><span class="PUNC">;</span><span class="WHIT">
-<span class='linenumber'> 266</span> </span><span class="WHIT">    </span><span class="PUNC">}</span><span class="PUNC">;</span><span class="WHIT">
-<span class='linenumber'> 267</span> </span><span class="PUNC">}</span><span class="PUNC">;</span><span class="WHIT">
-<span class='linenumber'> 268</span> </span></pre></body></html>
+<span class='linenumber'> 157</span> </span><span class="WHIT">    </span><span class="NAME">this.then</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="KEYW">function</span><span class="PUNC">(</span><span class="NAME">fulfilledHandler</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">errorHandler</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='linenumber'> 158</span> </span><span class="WHIT">        </span><span class="KEYW">var</span><span class="WHIT"> </span><span class="NAME">newPromise</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="KEYW">new</span><span class="WHIT"> </span><span class="NAME">jive.conc.Promise</span><span class="PUNC">(</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 159</span> 
+<span class='linenumber'> 160</span> </span><span class="WHIT">        </span><span class="NAME">this.addCallback</span><span class="PUNC">(</span><span class="KEYW">function</span><span class="PUNC">(</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='linenumber'> 161</span> </span><span class="WHIT">            </span><span class="KEYW">var</span><span class="WHIT"> </span><span class="NAME">result</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 162</span> </span><span class="WHIT">            </span><span class="KEYW">if</span><span class="WHIT"> </span><span class="PUNC">(</span><span class="KEYW">typeof</span><span class="WHIT"> </span><span class="NAME">fulfilledHandler</span><span class="WHIT"> </span><span class="PUNC">===</span><span class="WHIT"> </span><span class="STRN">'function'</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='linenumber'> 163</span> </span><span class="WHIT">                </span><span class="KEYW">try</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='linenumber'> 164</span> </span><span class="WHIT">                    </span><span class="NAME">result</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">fulfilledHandler.apply</span><span class="PUNC">(</span><span class="KEYW">null</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">arguments</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 165</span> </span><span class="WHIT">                    </span><span class="NAME">newPromise.emitSuccess</span><span class="PUNC">(</span><span class="NAME">result</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 166</span> </span><span class="WHIT">                </span><span class="PUNC">}</span><span class="WHIT"> </span><span class="KEYW">catch</span><span class="PUNC">(</span><span class="NAME">e</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='linenumber'> 167</span> </span><span class="WHIT">                    </span><span class="NAME">newPromise.emitError</span><span class="PUNC">(</span><span class="NAME">e</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 168</span> </span><span class="WHIT">                </span><span class="PUNC">}</span><span class="WHIT">
+<span class='linenumber'> 169</span> </span><span class="WHIT">            </span><span class="PUNC">}</span><span class="WHIT"> </span><span class="KEYW">else</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='linenumber'> 170</span> </span><span class="WHIT">                </span><span class="NAME">newPromise.emitSuccess.apply</span><span class="PUNC">(</span><span class="NAME">newPromise</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">arguments</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 171</span> </span><span class="WHIT">            </span><span class="PUNC">}</span><span class="WHIT">
+<span class='linenumber'> 172</span> </span><span class="WHIT">        </span><span class="PUNC">}</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 173</span> 
+<span class='linenumber'> 174</span> </span><span class="WHIT">        </span><span class="KEYW">if</span><span class="WHIT"> </span><span class="PUNC">(</span><span class="KEYW">typeof</span><span class="WHIT"> </span><span class="NAME">errorHandler</span><span class="WHIT"> </span><span class="PUNC">===</span><span class="WHIT"> </span><span class="STRN">'function'</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='linenumber'> 175</span> </span><span class="WHIT">            </span><span class="NAME">this.addErrback</span><span class="PUNC">(</span><span class="NAME">errorHandler</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 176</span> </span><span class="WHIT">        </span><span class="PUNC">}</span><span class="WHIT">
+<span class='linenumber'> 177</span> </span><span class="WHIT">        </span><span class="NAME">this.addErrback</span><span class="PUNC">(</span><span class="KEYW">function</span><span class="PUNC">(</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='linenumber'> 178</span> </span><span class="WHIT">            </span><span class="NAME">newPromise.emitError.apply</span><span class="PUNC">(</span><span class="NAME">newPromise</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">arguments</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 179</span> </span><span class="WHIT">        </span><span class="PUNC">}</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 180</span> 
+<span class='linenumber'> 181</span> </span><span class="WHIT">        </span><span class="KEYW">return</span><span class="WHIT"> </span><span class="NAME">newPromise</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 182</span> </span><span class="WHIT">    </span><span class="PUNC">}</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 183</span> 
+<span class='linenumber'> 184</span> </span><span class="WHIT">    </span><span class="COMM">/**
+<span class='linenumber'> 185</span>      * Adds a 'complete' callback to the promise.  The promise will emit
+<span class='linenumber'> 186</span>      * 'complete' after it is fulfilled with a success or an error or it is
+<span class='linenumber'> 187</span>      * cancelled.
+<span class='linenumber'> 188</span>      *
+<span class='linenumber'> 189</span>      * This can be useful if you want to do something like display a spinner
+<span class='linenumber'> 190</span>      * when an ajax call is made and to hide that spinner when the call
+<span class='linenumber'> 191</span>      * finishes regardless of whether the response was a success.
+<span class='linenumber'> 192</span>      *
+<span class='linenumber'> 193</span>      * @param {Function}    listener    function to be called when the promise emits 'complete'
+<span class='linenumber'> 194</span>      * @returns {jive.conc.Promise} returns the receiver so that this method can be cascaded
+<span class='linenumber'> 195</span>      */</span><span class="WHIT">
+<span class='linenumber'> 196</span> </span><span class="WHIT">    </span><span class="NAME">this.always</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="KEYW">function</span><span class="PUNC">(</span><span class="NAME">listener</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='linenumber'> 197</span> </span><span class="WHIT">        </span><span class="NAME">this.addListener</span><span class="PUNC">(</span><span class="STRN">'complete'</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">listener</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 198</span> </span><span class="WHIT">        </span><span class="KEYW">return</span><span class="WHIT"> </span><span class="KEYW">this</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 199</span> </span><span class="WHIT">    </span><span class="PUNC">}</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 200</span> 
+<span class='linenumber'> 201</span> </span><span class="WHIT">    </span><span class="COMM">/**
+<span class='linenumber'> 202</span>      * Causes the promise to emit 'success'.  Any arguments given will be
+<span class='linenumber'> 203</span>      * passed to callbacks for the promise's 'success' event.
+<span class='linenumber'> 204</span>      *
+<span class='linenumber'> 205</span>      * Calling this method prevents the promise from emitting any further
+<span class='linenumber'> 206</span>      * events.
+<span class='linenumber'> 207</span>      *
+<span class='linenumber'> 208</span>      * @param {...any}  [eventArgs] arguments to be passed to 'success' listeners
+<span class='linenumber'> 209</span>      */</span><span class="WHIT">
+<span class='linenumber'> 210</span> </span><span class="WHIT">    </span><span class="NAME">this.emitSuccess</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="KEYW">function</span><span class="PUNC">(</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='linenumber'> 211</span> </span><span class="WHIT">        </span><span class="KEYW">var</span><span class="WHIT"> </span><span class="NAME">eventArgs</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">Array.prototype.slice.call</span><span class="PUNC">(</span><span class="NAME">arguments</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NUMB">0</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 212</span> </span><span class="WHIT">        </span><span class="KEYW">if</span><span class="WHIT"> </span><span class="PUNC">(</span><span class="PUNC">!</span><span class="NAME">hasFired</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='linenumber'> 213</span> </span><span class="WHIT">            </span><span class="NAME">hasFired</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="KEYW">true</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 214</span> </span><span class="WHIT">            </span><span class="NAME">this.emit.apply</span><span class="PUNC">(</span><span class="KEYW">this</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="PUNC">[</span><span class="STRN">'success'</span><span class="PUNC">]</span><span class="PUNC">.</span><span class="NAME">concat</span><span class="PUNC">(</span><span class="NAME">eventArgs</span><span class="PUNC">)</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 215</span> </span><span class="WHIT">            </span><span class="NAME">this.emit</span><span class="PUNC">(</span><span class="STRN">'complete'</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 216</span> </span><span class="WHIT">        </span><span class="PUNC">}</span><span class="WHIT">
+<span class='linenumber'> 217</span> </span><span class="WHIT">    </span><span class="PUNC">}</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 218</span> 
+<span class='linenumber'> 219</span> </span><span class="WHIT">    </span><span class="COMM">/**
+<span class='linenumber'> 220</span>      * Causes the promise to emit 'error'.  Any arguments given will be
+<span class='linenumber'> 221</span>      * passed to callbacks for the promise's 'error' event.
+<span class='linenumber'> 222</span>      *
+<span class='linenumber'> 223</span>      * Calling this method prevents the promise from emitting any further
+<span class='linenumber'> 224</span>      * events.
+<span class='linenumber'> 225</span>      *
+<span class='linenumber'> 226</span>      * @param {...any} [eventArgs] arguments to be passed to 'error' listeners
+<span class='linenumber'> 227</span>      */</span><span class="WHIT">
+<span class='linenumber'> 228</span> </span><span class="WHIT">    </span><span class="NAME">this.emitError</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="KEYW">function</span><span class="PUNC">(</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='linenumber'> 229</span> </span><span class="WHIT">        </span><span class="KEYW">var</span><span class="WHIT"> </span><span class="NAME">eventArgs</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">Array.prototype.slice.call</span><span class="PUNC">(</span><span class="NAME">arguments</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NUMB">0</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 230</span> </span><span class="WHIT">        </span><span class="KEYW">if</span><span class="WHIT"> </span><span class="PUNC">(</span><span class="PUNC">!</span><span class="NAME">hasFired</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='linenumber'> 231</span> </span><span class="WHIT">            </span><span class="NAME">hasFired</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="KEYW">true</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 232</span> </span><span class="WHIT">            </span><span class="NAME">this.emit.apply</span><span class="PUNC">(</span><span class="KEYW">this</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="PUNC">[</span><span class="STRN">'error'</span><span class="PUNC">]</span><span class="PUNC">.</span><span class="NAME">concat</span><span class="PUNC">(</span><span class="NAME">eventArgs</span><span class="PUNC">)</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 233</span> </span><span class="WHIT">            </span><span class="NAME">this.emit</span><span class="PUNC">(</span><span class="STRN">'complete'</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 234</span> </span><span class="WHIT">        </span><span class="PUNC">}</span><span class="WHIT">
+<span class='linenumber'> 235</span> </span><span class="WHIT">    </span><span class="PUNC">}</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 236</span> 
+<span class='linenumber'> 237</span> </span><span class="WHIT">    </span><span class="COMM">/**
+<span class='linenumber'> 238</span>      * @private
+<span class='linenumber'> 239</span>      */</span><span class="WHIT">
+<span class='linenumber'> 240</span> </span><span class="WHIT">    </span><span class="KEYW">function</span><span class="WHIT"> </span><span class="NAME">emitCancel</span><span class="PUNC">(</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='linenumber'> 241</span> </span><span class="WHIT">        </span><span class="KEYW">var</span><span class="WHIT"> </span><span class="NAME">eventArgs</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">Array.prototype.slice.call</span><span class="PUNC">(</span><span class="NAME">arguments</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NUMB">0</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 242</span> </span><span class="WHIT">        </span><span class="NAME">self.emit.apply</span><span class="PUNC">(</span><span class="NAME">self</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="PUNC">[</span><span class="STRN">'cancel'</span><span class="PUNC">]</span><span class="PUNC">.</span><span class="NAME">concat</span><span class="PUNC">(</span><span class="NAME">eventArgs</span><span class="PUNC">)</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 243</span> </span><span class="WHIT">    </span><span class="PUNC">}</span><span class="WHIT">
+<span class='linenumber'> 244</span> 
+<span class='linenumber'> 245</span> </span><span class="WHIT">    </span><span class="COMM">/**
+<span class='linenumber'> 246</span>      * Cancels the promise.  This causes the promise to emit 'cancel'.
+<span class='linenumber'> 247</span>      *
+<span class='linenumber'> 248</span>      * In most cases the class or function that creates a promise will send
+<span class='linenumber'> 249</span>      * messages through the promise while callers listen for events.  However
+<span class='linenumber'> 250</span>      * with 'cancel' it may be useful to do the reverse: the creator of the
+<span class='linenumber'> 251</span>      * promise could abort some long running operation when a caller cancels
+<span class='linenumber'> 252</span>      * the promise.
+<span class='linenumber'> 253</span>      *
+<span class='linenumber'> 254</span>      * Calling this method prevents the promise from emitting any further
+<span class='linenumber'> 255</span>      * events.
+<span class='linenumber'> 256</span>      */</span><span class="WHIT">
+<span class='linenumber'> 257</span> </span><span class="WHIT">    </span><span class="NAME">this.cancel</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="KEYW">function</span><span class="PUNC">(</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='linenumber'> 258</span> </span><span class="WHIT">        </span><span class="KEYW">if</span><span class="WHIT"> </span><span class="PUNC">(</span><span class="PUNC">!</span><span class="NAME">cancelled</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='linenumber'> 259</span> </span><span class="WHIT">            </span><span class="NAME">cancelled</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="KEYW">true</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 260</span> </span><span class="WHIT">            </span><span class="NAME">this.removeListener</span><span class="PUNC">(</span><span class="STRN">'success'</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 261</span> </span><span class="WHIT">            </span><span class="NAME">this.removeListener</span><span class="PUNC">(</span><span class="STRN">'error'</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 262</span> </span><span class="WHIT">            </span><span class="NAME">this.removeListener</span><span class="PUNC">(</span><span class="STRN">'complete'</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 263</span> </span><span class="WHIT">            </span><span class="NAME">emitCancel</span><span class="PUNC">(</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 264</span> </span><span class="WHIT">        </span><span class="PUNC">}</span><span class="WHIT">
+<span class='linenumber'> 265</span> </span><span class="WHIT">    </span><span class="PUNC">}</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 266</span> 
+<span class='linenumber'> 267</span> </span><span class="WHIT">    </span><span class="COMM">/**
+<span class='linenumber'> 268</span>      * Calling this method with a `delay` argument causes the timeout to abort
+<span class='linenumber'> 269</span>      * after the given length of time.  If the promise has not emitted some
+<span class='linenumber'> 270</span>      * event by the time the timeout expires then the promise will emit an
+<span class='linenumber'> 271</span>      * 'error' event with a single argument of the form, `new
+<span class='linenumber'> 272</span>      * Error('timeout')`.
+<span class='linenumber'> 273</span>      *
+<span class='linenumber'> 274</span>      * Calling `timeout()` with a `delay` argument a second time will cancel
+<span class='linenumber'> 275</span>      * the previous timeout and will start a new timeout.
+<span class='linenumber'> 276</span>      *
+<span class='linenumber'> 277</span>      * Calling `timeout()` with no arguments will have no side-effect but will
+<span class='linenumber'> 278</span>      * return the timeout that has already been set in milliseconds.  If no
+<span class='linenumber'> 279</span>      * timeout has been set then calling `timeout()` with no arguments will
+<span class='linenumber'> 280</span>      * return `undefined`.
+<span class='linenumber'> 281</span>      *
+<span class='linenumber'> 282</span>      * @param {number}  [delay] time in milliseconds to wait before aborting the promise
+<span class='linenumber'> 283</span>      * @returns {number}    Returns the currently set timeout delay if there is:
+<span class='linenumber'> 284</span>      * one.  Otherwise returns the receiver.
+<span class='linenumber'> 285</span>      */</span><span class="WHIT">
+<span class='linenumber'> 286</span> </span><span class="WHIT">    </span><span class="NAME">this.timeout</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="KEYW">function</span><span class="PUNC">(</span><span class="NAME">timeout</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='linenumber'> 287</span> </span><span class="WHIT">        </span><span class="KEYW">if</span><span class="WHIT"> </span><span class="PUNC">(</span><span class="KEYW">typeof</span><span class="WHIT"> </span><span class="NAME">timeout</span><span class="WHIT"> </span><span class="PUNC">==</span><span class="WHIT"> </span><span class="STRN">'undefined'</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='linenumber'> 288</span> </span><span class="WHIT">            </span><span class="KEYW">return</span><span class="WHIT"> </span><span class="NAME">timeoutDuration</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 289</span> </span><span class="WHIT">        </span><span class="PUNC">}</span><span class="WHIT">
+<span class='linenumber'> 290</span> 
+<span class='linenumber'> 291</span> </span><span class="WHIT">        </span><span class="NAME">timeoutDuration</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">timeout</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 292</span> </span><span class="WHIT">        </span><span class="KEYW">if</span><span class="WHIT"> </span><span class="PUNC">(</span><span class="NAME">timer</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='linenumber'> 293</span> </span><span class="WHIT">            </span><span class="NAME">clearTimeout</span><span class="PUNC">(</span><span class="NAME">timer</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 294</span> </span><span class="WHIT">            </span><span class="NAME">timer</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="KEYW">null</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 295</span> </span><span class="WHIT">        </span><span class="PUNC">}</span><span class="WHIT">
+<span class='linenumber'> 296</span> 
+<span class='linenumber'> 297</span> </span><span class="WHIT">        </span><span class="NAME">timer</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">setTimeout</span><span class="PUNC">(</span><span class="KEYW">function</span><span class="PUNC">(</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='linenumber'> 298</span> </span><span class="WHIT">            </span><span class="NAME">timer</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="KEYW">null</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 299</span> </span><span class="WHIT">            </span><span class="KEYW">if</span><span class="WHIT"> </span><span class="PUNC">(</span><span class="PUNC">!</span><span class="NAME">hasFired</span><span class="WHIT"> </span><span class="PUNC">&&</span><span class="WHIT"> </span><span class="PUNC">!</span><span class="NAME">cancelled</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='linenumber'> 300</span> </span><span class="WHIT">                </span><span class="NAME">self.emitError</span><span class="PUNC">(</span><span class="KEYW">new</span><span class="WHIT"> </span><span class="NAME">Error</span><span class="PUNC">(</span><span class="STRN">'timeout'</span><span class="PUNC">)</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 301</span> </span><span class="WHIT">            </span><span class="PUNC">}</span><span class="WHIT">
+<span class='linenumber'> 302</span> </span><span class="WHIT">        </span><span class="PUNC">}</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">timeoutDuration</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 303</span> 
+<span class='linenumber'> 304</span> </span><span class="WHIT">        </span><span class="KEYW">return</span><span class="WHIT"> </span><span class="KEYW">this</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 305</span> </span><span class="WHIT">    </span><span class="PUNC">}</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 306</span> </span><span class="PUNC">}</span><span class="PUNC">;</span><span class="WHIT">
+<span class='linenumber'> 307</span> </span></pre></body></html>
