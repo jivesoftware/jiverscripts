@@ -171,8 +171,8 @@ test("overridden public methods can invoke the super definition of the same meth
     var klass = jive.oo.Class.extend(function() {
         this.sum = function(a, b) { return a + b; };
     });
-    var subklass = klass.extend(function() {
-        this.sum = function(a, b) { return "sum is: "+ this._super(a, b); };
+    var subklass = klass.extend(function(protect, _super) {
+        this.sum = function(a, b) { return "sum is: "+ _super.sum.call(this, a, b); };
     });
     var obj = new subklass();
     ok( obj.sum(2, 3) == "sum is: 5", "sum() decorates its super definition" );
@@ -182,8 +182,8 @@ test("overridden protected methods can invoke the super definition of the same m
     var klass = jive.oo.Class.extend(function(protected) {
         protected.sum = function(a, b) { return a + b; };
     });
-    var subklass = klass.extend(function(protected) {
-        protected.sum = function(a, b) { return "sum is: "+ this._super(a, b); };
+    var subklass = klass.extend(function(protected, _super) {
+        protected.sum = function(a, b) { return "sum is: "+ _super.sum.call(this, a, b); };
         this.getSum = function(a, b) { return this.sum(a, b); };
     });
     var obj = new subklass();

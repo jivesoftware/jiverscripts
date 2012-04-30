@@ -64,8 +64,7 @@ jive.oo.Class.extend = (function(){
         return new F();
     };
 
-    var initializing = false
-      , fnTest = /xyz/.test(function(){return 'xyz';}) ? /\b_super\b/ : /.*/;
+    var initializing = false;
 
     // Create a new Class that inherits from this class
     return function extend(definition) {
@@ -84,7 +83,7 @@ jive.oo.Class.extend = (function(){
         // properties assigned to the function's argument become protected
         // members.
         if (typeof definition == 'function') {
-            definition.call(prototype, protect);
+            definition.call(prototype, protect, _super);
         } else {
             // If an object is given all members of that object become public
             // members of the class.
@@ -105,31 +104,6 @@ jive.oo.Class.extend = (function(){
                 } else {
                     throw "Public and protected properties with the same name are not allowed: '"+ name +"'";
                 }
-            }
-        }
-
-        // Wrap methods that call `_super()`
-        for (name in protect) {
-            if (protect.hasOwnProperty(name) &&
-              typeof protect[name] == "function" &&
-              typeof _super[name] == "function" &&
-              fnTest.test(protect[name])) {
-                protect[name] = (function(name, fn){
-                    return function() {
-                        var tmp = this._super;
-
-                        // Add a new ._super() method that is the same method
-                        // but on the super-class
-                        this._super = _super[name];
-
-                        // The method only need to be bound temporarily, so we
-                        // remove it when we're done executing
-                        var ret = fn.apply(this, arguments);
-                        this._super = tmp;
-
-                        return ret;
-                    };
-                })(name, protect[name]);
             }
         }
 

@@ -19,15 +19,15 @@
 
 module("jive.oo.compose", {
     setup: function() {
-        this.Foo = jive.oo.Class.extend(function(protected) {
+        this.Foo = jive.oo.Class.extend(function(protect) {
             this.foo = function() {};
         });
 
-        this.Bar = jive.oo.Class.extend(function(protected) {
+        this.Bar = jive.oo.Class.extend(function(protect) {
             this.bar = function() {};
         });
 
-        this.BaseOutput = jive.oo.Class.extend(function(protected) {
+        this.BaseOutput = jive.oo.Class.extend(function(protect) {
             this.output = function(str) {
                 this.last = str;
                 return str;
@@ -38,31 +38,31 @@ module("jive.oo.compose", {
             };
         });
 
-        this.Doubler = this.BaseOutput.extend(function(protected) {
+        this.Doubler = this.BaseOutput.extend(function(protect, _super) {
             this.output = function(str) {
                 var doubled = this.concat(str, str);
-                return this._super(doubled);
+                return _super.output.call(this, doubled);
             };
 
-            protected.concat = function(a, b) {
+            protect.concat = function(a, b) {
                 return a + b;
             };
         });
 
-        this.Quieter = this.BaseOutput.extend(function(protected) {
+        this.Quieter = this.BaseOutput.extend(function(protect, _super) {
             this.output = function(str) {
                 var quiet = str.toLowerCase();
-                return this._super(quiet);
+                return _super.output.call(this, quiet);
             };
         });
 
-        this.Exclaimer = this.BaseOutput.extend(function(protected) {
+        this.Exclaimer = this.BaseOutput.extend(function(protect, _super) {
             this.output = function(str) {
                 var exclaimed = this.concat(str, "!!");
-                return this._super(exclaimed);
+                return _super.output.call(this, exclaimed);
             };
 
-            protected.concat = function(a, b) {
+            protect.concat = function(a, b) {
                 return a + b;
             };
         });
