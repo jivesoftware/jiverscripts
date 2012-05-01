@@ -16,7 +16,8 @@
 
 
 /*jslint laxbreak:true forin:true browser:true */
-/*extern jive */
+/*jshint laxcomma:true */
+/*globals jive */
 
 this.jive = this.jive || {};
 jive.oo = jive.oo || {};
@@ -56,31 +57,32 @@ jive.oo = jive.oo || {};
  * @requires jive.oo.Class
  */
 jive.oo.resolve = function(resolutions, klass) {
-    var undefined;
+    var undef;
 
-    return klass.superclass.extend(function(protect) {
+    return klass.superclass.extend(function(protect, _super) {
         var definition = klass.definition
-          , public = this;
+          , name
+          , _public = this;
 
         if (typeof definition == 'function') {
-            definition.call(public, protect);
+            definition.call(_public, protect, _super);
         } else {
             for (name in definition) {
                 if (definition.hasOwnProperty(name)) {
-                    public[name] = definition[name];
+                    _public[name] = definition[name];
                 }
             }
         }
 
-        exclude(public);
+        exclude(_public);
         exclude(protect);
 
-        rename(public);
+        rename(_public);
         rename(protect);
 
         function exclude(def) {
             eachProp(def, function(name) {
-                if (resolutions[name] === undefined) {
+                if (resolutions[name] === undef) {
                     delete def[name];
                 }
             });

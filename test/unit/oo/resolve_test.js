@@ -15,13 +15,17 @@
  */
 
 /*jslint laxbreak:true forin:true browser:true */
-/*extern jive */
+/*globals jive module test ok equal */
 
 module('jive.oo.resolve', {
     setup: function() {
-        this.superKlass = jive.oo.Class.extend({});
+        this.superKlass = jive.oo.Class.extend(function(protect) {
+            this.doubled = function(v) {
+                return v * 2;
+            };
+        });
 
-        this.klass = this.superKlass.extend(function(protect) {
+        this.klass = this.superKlass.extend(function(protect, _super) {
             protect.protectedMember = function() {
                 return 'foo';
             };
@@ -33,43 +37,47 @@ module('jive.oo.resolve', {
             this.invokeRenamed = function() {
                 return this.renamedProtectedMember();
             };
+
+            this.doubled = function(v) {
+                return _super.doubled.call(this, v);
+            };
         });
     }
 });
 
 test('renames a protected member', 1, function() {
-    var modifiedKlass = jive.oo.resolve({
+    var ModifiedKlass = jive.oo.resolve({
         protectedMember: 'renamedProtectedMember'
     }, this.klass);
-    var instance = new modifiedKlass();
+    var instance = new ModifiedKlass();
 
     equal( instance.invokeRenamed(), 'foo', 'invoked the renamed method' );
 });
 
 test('renames a public member', 1, function() {
-    var modifiedKlass = jive.oo.resolve({
+    var ModifiedKlass = jive.oo.resolve({
         publicMember: 'renamedPublicMember'
     }, this.klass);
-    var instance = new modifiedKlass();
+    var instance = new ModifiedKlass();
 
     equal( instance.renamedPublicMember(), 'bar', 'invoked the renamed method' );
 });
 
 test('preserves the parent of the original class', 1, function() {
-    var modifiedKlass = jive.oo.resolve({
+    var ModifiedKlass = jive.oo.resolve({
         publicMember: 'renamedPublicMember'
     }, this.klass);
 
-    equal( modifiedKlass.superclass, this.superKlass, 'the parent of modifiedKlass is superKlass' );
+    equal( ModifiedKlass.superclass, this.superKlass, 'the parent of ModifiedKlass is superKlass' );
 });
 
 test('preserves members that are not renamed', 1, function() {
-    var modifiedKlass = jive.oo.resolve({
+    var ModifiedKlass = jive.oo.resolve({
         protectedMember: 'renamedProtectedMember'
     }, this.klass);
-    var instance = new modifiedKlass();
+    var instance = new ModifiedKlass();
 
-    equal( instance.publicMember(), 'bar', 'invoked modifiedKlass#publicMember()' );
+    equal( instance.publicMember(), 'bar', 'invoked ModifiedKlass#publicMember()' );
 });
 
 test('renames members of a class that was defined with an object literal', 1, function() {
@@ -79,33 +87,69 @@ test('renames members of a class that was defined with an object literal', 1, fu
         }
     });
 
-    var modifiedKlass = jive.oo.resolve({ publicMember: 'renamed' }, klass);
-    var instance = new modifiedKlass();
+    var ModifiedKlass = jive.oo.resolve({ publicMember: 'renamed' }, klass);
+    var instance = new ModifiedKlass();
 
-    equal( instance.renamed(), 'bar', 'invoked modifiedKlass#renamed()' );
+    equal( instance.renamed(), 'bar', 'invoked ModifiedKlass#renamed()' );
 });
 
 test('excludes a member if `undefined` is given instead of a new name', 2, function() {
-    var undefined;
+    var undef;
 
-    var modifiedKlass = jive.oo.resolve({
-        publicMember: undefined
+    var ModifiedKlass = jive.oo.resolve({
+        publicMember: undef
     }, this.klass);
-    var instance = new modifiedKlass();
+    var instance = new ModifiedKlass();
 
     ok( !instance.hasOwnProperty('publicMember'), 'instance does not have its own "publicMember" property' );
     ok( typeof instance.publicMember == 'undefined', '`instance.publicMember` is undefined' );
 });
 
 test('excludes members before renaming members', 1, function() {
-    var undefined;
+    var undef;
 
-    var modifiedKlass = jive.oo.resolve({
+    var ModifiedKlass = jive.oo.resolve({
         protectedMember: 'renamedProtectedMember',
         invokeRenamed: 'publicMember',
-        publicMember: undefined
+        publicMember: undef
     }, this.klass);
-    var instance = new modifiedKlass();
+    var instance = new ModifiedKlass();
 
-    equal( instance.publicMember(), 'foo', 'modifiedKlass#publicMember() now returns "foo"' );
+    equal( instance.publicMember(), 'foo', 'ModifiedKlass#publicMember() now returns "foo"' );
+});
+
+test('preserves _super references', 1, function() {
+    var undef;
+
+    var ModifiedKlass = jive.oo.resolve({
+        protectedMember: 'renamedProtectedMember',
+        invokeRenamed: 'publicMember',
+        publicMember: undef
+    }, this.klass);
+    var instance = new ModifiedKlass();
+
+    equal( instance.doubled(2), 4, 'invoked doubled() implementation from superclass' );
+});
+
+test('updates _super references when stacking mixins', 1, function() {
+    var undef;
+
+    var ExtraDoubler = this.superKlass.extend(function(protect, _super) {
+        this.doubled = function(v) {
+            var extra = v + 1;
+            return _super.doubled.call(this, extra);
+        };
+    });
+
+    var ModifiedKlass = jive.oo.compose(
+        ExtraDoubler,
+        jive.oo.resolve({
+            protectedMember: 'renamedProtectedMember',
+            invokeRenamed: 'publicMember',
+            publicMember: undef
+        }, this.klass)
+    );
+    var instance = new ModifiedKlass();
+
+    equal( instance.doubled(2), 6, 'new implementation of doubled() passes through odd adjustment from ExtraDoubler' );
 });
