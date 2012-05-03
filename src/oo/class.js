@@ -33,7 +33,7 @@ jive.oo = jive.oo || {};
  * Resig's Simple JavaScript Inheritance][1].
  *
  * This adaptation supports true protected members and supports class
- * composition via {@link jive.oo.compose} and abstract members via {@link jive.oo.abstract}.
+ * composition via {@link jive.oo.compose} and abstract members via {@link jive.oo._abstract}.
  *
  * [1]: http://ejohn.org/blog/simple-javascript-inheritance/  "Simple JavaScript Inheritance"
  *
@@ -125,9 +125,9 @@ jive.oo.Class.extend = (function(){
             }
 
             // Check for abstract members
-            if ( !initializing && jive.oo.abstract ) {
+            if ( !initializing && jive.oo._abstract ) {
                 for (name in protectedInstance) {
-                    if (protectedInstance[name] === jive.oo.abstract) {
+                    if (protectedInstance[name] === jive.oo._abstract) {
                         throw "A class with abstract members cannot be instantiated: '"+ name +"'";
                     }
                 }

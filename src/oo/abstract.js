@@ -23,7 +23,7 @@ jive.oo = jive.oo || {};
 
 /**
  * Singleton representing an abstract member.  You can set the value of a field
- * or method of a class implemented with jive.oo.Class to jive.oo.abstract to
+ * or method of a class implemented with jive.oo.Class to jive.oo._abstract to
  * make that class abstract.  An abstract class or a subclass of an abstract
  * class cannot be instantiated unless any abstract members are overridden with
  * concrete definitions.
@@ -31,4 +31,5 @@ jive.oo = jive.oo || {};
  * @field
  * @requires jive.oo.Class
  */
-jive.oo.abstract = function() {};
+jive.oo['abstract'] = function() {};
+jive.oo._abstract = jive.oo['abstract'];  // Alias to non-reserved word.

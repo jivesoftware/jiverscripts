@@ -17,11 +17,11 @@
 /*jslint laxbreak:true */
 /*extern module test ok jive */
 
-module('jive.oo.abstract', {
+module('jive.oo._abstract', {
     setup: function() {
         this.AbstractClass = jive.oo.Class.extend(function(protect) {
-            this.publicMember = jive.oo.abstract;
-            protect.protectedMember = jive.oo.abstract;
+            this.publicMember = jive.oo._abstract;
+            protect.protectedMember = jive.oo._abstract;
         });
     }
 });

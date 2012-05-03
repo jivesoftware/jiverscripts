@@ -31,7 +31,7 @@ test("a class constructs an object", 1, function() {
 });
 
 test("classes keep a reference to their definition", 1, function() {
-    var def = function(protected) { protected.foo = 1; };
+    var def = function(protect) { protect.foo = 1; };
     var klass = jive.oo.Class.extend(def);
     ok( klass.definition === def, "klass.definition is a reference to the original definition of klass" );
 });
@@ -40,7 +40,7 @@ test("classes keep a reference to their definition", 1, function() {
 module("class members");
 
 test("public methods are publicly accessible", 1, function() {
-    var klass = jive.oo.Class.extend(function(protected) {
+    var klass = jive.oo.Class.extend(function(protect) {
         this.hello = function() {
             return "hello";
         };
@@ -50,9 +50,9 @@ test("public methods are publicly accessible", 1, function() {
 });
 
 test("protected members are not publicly accessible", 2, function() {
-    var klass = jive.oo.Class.extend(function(protected) {
-        protected.goodbye = function() { return "goodbye"; };
-        protected.init = function() { this.name = "foo"; };
+    var klass = jive.oo.Class.extend(function(protect) {
+        protect.goodbye = function() { return "goodbye"; };
+        protect.init = function() { this.name = "foo"; };
     });
     var obj = new klass();
     ok( typeof obj.goodbye == 'undefined', "protected methods are not publicly accessible" );
@@ -60,20 +60,20 @@ test("protected members are not publicly accessible", 2, function() {
 });
 
 test("protected members can be accessed from public methods", 1, function() {
-    var klass = jive.oo.Class.extend(function(protected) {
+    var klass = jive.oo.Class.extend(function(protect) {
         this.hello = function() { return this.greeting() +" "+ this.name; };
-        protected.greeting = function() { return "hello"; };
-        protected.init = function() { this.name = "world"; };
+        protect.greeting = function() { return "hello"; };
+        protect.init = function() { this.name = "world"; };
     });
     var obj = new klass();
     ok( obj.hello() == "hello world", "hello() calls into protected members" );
 });
 
 test("protected members can be accessed from protected methods", 1, function() {
-    var klass = jive.oo.Class.extend(function(protected) {
+    var klass = jive.oo.Class.extend(function(protect) {
         this.hello = function() { return this.greeting(); };
-        protected.greeting = function() { return "hello " + this.name; };
-        protected.init = function() { this.name = "world"; };
+        protect.greeting = function() { return "hello " + this.name; };
+        protect.init = function() { this.name = "world"; };
     });
     var obj = new klass();
     ok( obj.hello() == "hello world", "hello() calls into protected members" );
@@ -90,10 +90,10 @@ test("public variables are not allowed", 1, function() {
 });
 
 test("public methods are always invoked in the context of the object that they belong to", 1, function() {
-    var klass = jive.oo.Class.extend(function(protected) {
+    var klass = jive.oo.Class.extend(function(protect) {
         this.hello = function() { return this.greeting(); };
-        protected.greeting = function() { return "hello " + this.name; };
-        protected.init = function() { this.name = "world"; };
+        protect.greeting = function() { return "hello " + this.name; };
+        protect.init = function() { this.name = "world"; };
     });
     var obj = new klass();
     var hello = obj.hello;
@@ -121,9 +121,9 @@ test("public methods defined on a superclass are publicly accessible", 1, functi
 });
 
 test("public methods can access protected members of a superclass", 1, function() {
-    var klass = jive.oo.Class.extend(function(protected) {
-        protected.greeting = function() { return "hello"; };
-        protected.init = function() { this.name = "world"; };
+    var klass = jive.oo.Class.extend(function(protect) {
+        protect.greeting = function() { return "hello"; };
+        protect.init = function() { this.name = "world"; };
     });
     var subklass = klass.extend(function() {
         this.hello = function() { return this.greeting() +" "+ this.name; };
@@ -133,22 +133,22 @@ test("public methods can access protected members of a superclass", 1, function(
 });
 
 test("protected methods can access protected members of a superclass", 1, function() {
-    var klass = jive.oo.Class.extend(function(protected) {
-        protected.init = function() { this.name = "world"; };
+    var klass = jive.oo.Class.extend(function(protect) {
+        protect.init = function() { this.name = "world"; };
     });
-    var subklass = klass.extend(function(protected) {
+    var subklass = klass.extend(function(protect) {
         this.hello = function() { return this.greeting(); };
-        protected.greeting = function() { return "hello " + this.name; };
+        protect.greeting = function() { return "hello " + this.name; };
     });
     var obj = new subklass();
     ok( obj.hello() == "hello world", "greeting() reads from a superclass member" );
 });
 
 test("public methods can access public methods of a superclass", 1, function() {
-    var klass = jive.oo.Class.extend(function(protected) {
+    var klass = jive.oo.Class.extend(function(protect) {
         this.greeting = function() { return "hello"; };
     });
-    var subklass = klass.extend(function(protected) {
+    var subklass = klass.extend(function(protect) {
         this.hello = function() { return this.greeting(); };
     });
     var obj = new subklass();
@@ -159,9 +159,9 @@ test("protected methods can access public methods of a superclass", 1, function(
     var klass = jive.oo.Class.extend(function() {
         this.hello = function() { return "hello"; };
     });
-    var subklass = klass.extend(function(protected) {
+    var subklass = klass.extend(function(protect) {
         this.goodbye = function() { return this.sayGoodbye(); };
-        protected.sayGoodbye = function() { return this.hello() +"? goodbye!"; };
+        protect.sayGoodbye = function() { return this.hello() +"? goodbye!"; };
     });
     var obj = new subklass();
     ok( obj.goodbye() == "hello? goodbye!", "sayGoodbye() calls hello() on superclass" );
@@ -179,11 +179,11 @@ test("overridden public methods can invoke the super definition of the same meth
 });
 
 test("overridden protected methods can invoke the super definition of the same method", 1, function() {
-    var klass = jive.oo.Class.extend(function(protected) {
-        protected.sum = function(a, b) { return a + b; };
+    var klass = jive.oo.Class.extend(function(protect) {
+        protect.sum = function(a, b) { return a + b; };
     });
-    var subklass = klass.extend(function(protected, _super) {
-        protected.sum = function(a, b) { return "sum is: "+ _super.sum.call(this, a, b); };
+    var subklass = klass.extend(function(protect, _super) {
+        protect.sum = function(a, b) { return "sum is: "+ _super.sum.call(this, a, b); };
         this.getSum = function(a, b) { return this.sum(a, b); };
     });
     var obj = new subklass();
@@ -215,8 +215,8 @@ module("initializing");
 
 test("Initialize method init() is called when a new instance is created", 1, function() {
     var initCalled = false;
-    var klass = jive.oo.Class.extend(function(protected) {
-        protected.init = function() {
+    var klass = jive.oo.Class.extend(function(protect) {
+        protect.init = function() {
             initCalled = true;
         };
     });
@@ -226,8 +226,8 @@ test("Initialize method init() is called when a new instance is created", 1, fun
 
 test("Arguments given to the class constructer are passed to init()", 1, function() {
     var initCalled = false;
-    var klass = jive.oo.Class.extend(function(protected) {
-        protected.init = function(a, b) {
+    var klass = jive.oo.Class.extend(function(protect) {
+        protect.init = function(a, b) {
             initCalled = a && b;
         };
     });
