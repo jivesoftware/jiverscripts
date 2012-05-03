@@ -109,7 +109,7 @@ jive.oo.Class.extend = (function(){
 
         // The dummy class constructor
         function Class() {
-            var instance = this
+            var instance = this instanceof Class ? this : create(Class.prototype)
               , name
               , protectedInstance = create(Class['protected']);
 
